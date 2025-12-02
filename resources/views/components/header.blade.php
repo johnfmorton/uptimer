@@ -1,0 +1,1 @@
+<header class="text-center pt-6 text-slate-500 text-sm"">This template was cloned from: <a href="https://github.com/johnfmorton/kiro-laravel-skeleton-template" class="underline" target="_blank">https://github.com/johnfmorton/kiro-laravel-skeleton-template</a></header>
