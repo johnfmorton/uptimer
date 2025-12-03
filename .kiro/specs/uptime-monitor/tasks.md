@@ -216,7 +216,7 @@
   - Style emails with inline CSS for email client compatibility
   - _Requirements: 8.2, 8.3, 8.4_
 
-- [ ] 17. Configure routes and middleware
+- [x] 17. Configure routes and middleware
   - Define authentication routes (login, logout)
   - Define dashboard route with auth middleware
   - Define monitor resource routes with auth middleware
