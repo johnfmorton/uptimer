@@ -31,6 +31,7 @@ Route::middleware('auth')->group(function () {
     // Queue test routes for verifying queue functionality
     Route::post('/queue-test', [QueueTestController::class, 'dispatch'])->name('queue.test');
     Route::get('/queue-status', [QueueTestController::class, 'status'])->name('queue.status');
+    Route::get('/queue-test/{test_id}/status', [QueueTestController::class, 'checkStatus'])->name('queue.test.status');
 
     // Queue diagnostics routes
     Route::post('/queue/test', [QueueDiagnosticsController::class, 'testQueue'])->name('queue.diagnostics.test');

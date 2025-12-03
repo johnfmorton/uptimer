@@ -7,8 +7,9 @@ namespace App\Http\Controllers;
 use App\Jobs\TestQueueJob;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class QueueTestController extends Controller
 {
@@ -17,13 +18,39 @@ class QueueTestController extends Controller
      */
     public function dispatch(): RedirectResponse
     {
+        $test_id = Str::uuid()->toString();
         $message = 'Queue test dispatched at ' . now()->toDateTimeString();
 
-        TestQueueJob::dispatch($message);
+        // Store initial status in cache
+        Cache::put("queue_test_{$test_id}", [
+            'status' => 'pending',
+            'message' => 'Test job dispatched to queue...',
+            'dispatched_at' => now()->toDateTimeString(),
+        ], now()->addMinutes(5));
+
+        // Dispatch the job with the test ID
+        TestQueueJob::dispatch($message, $test_id);
 
         return redirect()
             ->back()
-            ->with('success', 'Test job dispatched to queue! Check logs with: ddev artisan pail');
+            ->with('queue_test_id', $test_id);
+    }
+
+    /**
+     * Check the status of a test job.
+     */
+    public function checkStatus(string $test_id): JsonResponse
+    {
+        $status = Cache::get("queue_test_{$test_id}");
+
+        if (!$status) {
+            return response()->json([
+                'status' => 'not_found',
+                'message' => 'Test job not found or expired',
+            ], 404);
+        }
+
+        return response()->json($status);
     }
 
     /**

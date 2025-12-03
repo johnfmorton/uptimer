@@ -193,17 +193,215 @@
             </div>
         @endif
 
-        {{-- Test Queue Button --}}
-        <div class="flex justify-end pt-4 border-t border-gray-200">
-            <form method="POST" action="{{ route('queue.test') }}">
-                @csrf
-                <button type="submit" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        {{-- Test Queue Status Display --}}
+        @if(session('queue_test_id'))
+            <div id="queue-test-status" class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg" data-test-id="{{ session('queue_test_id') }}">
+                <div class="flex items-start">
+                    <svg class="animate-spin w-5 h-5 text-blue-600 mr-3 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    {{ __('Test Queue') }}
-                </button>
-            </form>
+                    <div class="flex-1">
+                        <p class="text-sm font-semibold text-blue-900">{{ __('Queue Test Running') }}</p>
+                        <p id="queue-test-message" class="text-xs text-blue-700 mt-1">
+                            {{ __('Test job dispatched to queue...') }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        {{-- Test Queue Button and Status --}}
+        <div class="pt-4 border-t border-gray-200">
+            {{-- Real-time Test Status --}}
+            <div id="queue-test-status" class="mb-4 hidden">
+                <div class="p-4 rounded-lg border" id="queue-test-status-content">
+                    <div class="flex items-center">
+                        <svg class="animate-spin h-5 w-5 mr-3 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span id="queue-test-message">{{ __('Test job dispatched to queue...') }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end">
+                <form method="POST" action="{{ route('queue.test') }}" id="queue-test-form">
+                    @csrf
+                    <button type="submit" id="queue-test-button" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        {{ __('Test Queue') }}
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 </div>
+
+@if(session('queue_test_id'))
+<script>
+    (function() {
+        const testId = '{{ session('queue_test_id') }}';
+        const statusDiv = document.getElementById('queue-test-status');
+        const statusContent = document.getElementById('queue-test-status-content');
+        const messageSpan = document.getElementById('queue-test-message');
+        const testButton = document.getElementById('queue-test-button');
+        
+        let pollInterval;
+        let pollCount = 0;
+        const maxPolls = 30; // Poll for up to 30 seconds
+        
+        // Show status div
+        statusDiv.classList.remove('hidden');
+        testButton.disabled = true;
+        
+        function updateStatus(status, message, isComplete = false) {
+            messageSpan.textContent = message;
+            
+            if (isComplete) {
+                clearInterval(pollInterval);
+                testButton.disabled = false;
+                
+                // Update styling based on status
+                if (status === 'completed') {
+                    statusContent.className = 'p-4 rounded-lg border bg-green-50 border-green-200';
+                    statusContent.innerHTML = `
+                        <div class="flex items-center">
+                            <svg class="h-5 w-5 mr-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span class="text-green-900">${message}</span>
+                        </div>
+                    `;
+                } else if (status === 'failed') {
+                    statusContent.className = 'p-4 rounded-lg border bg-red-50 border-red-200';
+                    statusContent.innerHTML = `
+                        <div class="flex items-center">
+                            <svg class="h-5 w-5 mr-3 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span class="text-red-900">${message}</span>
+                        </div>
+                    `;
+                }
+                
+                // Hide after 10 seconds
+                setTimeout(() => {
+                    statusDiv.classList.add('hidden');
+                }, 10000);
+            }
+        }
+        
+        function checkStatus() {
+            pollCount++;
+            
+            if (pollCount > maxPolls) {
+                updateStatus('timeout', '⚠️ Test timed out. Queue worker may not be running.', true);
+                return;
+            }
+            
+            fetch(`/queue-test/${testId}/status`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'completed') {
+                        updateStatus('completed', data.message, true);
+                    } else if (data.status === 'failed') {
+                        updateStatus('failed', data.message, true);
+                    } else if (data.status === 'processing') {
+                        updateStatus('processing', data.message);
+                    } else if (data.status === 'pending') {
+                        updateStatus('pending', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking queue status:', error);
+                    updateStatus('error', 'Error checking queue status', true);
+                });
+        }
+        
+        // Start polling
+        pollInterval = setInterval(checkStatus, 1000);
+        checkStatus(); // Check immediately
+    })();
+</script>
+@endif
+
+@if(session('queue_test_id'))
+<script>
+(function() {
+    const statusDiv = document.getElementById('queue-test-status');
+    const messageEl = document.getElementById('queue-test-message');
+    const testId = statusDiv.dataset.testId;
+    let pollInterval;
+    let pollCount = 0;
+    const maxPolls = 30; // Poll for up to 30 seconds
+
+    function checkStatus() {
+        pollCount++;
+        
+        fetch(`/queue-test/${testId}/status`)
+            .then(response => response.json())
+            .then(data => {
+                messageEl.textContent = data.message;
+                
+                if (data.status === 'completed') {
+                    // Update to success state
+                    statusDiv.className = 'mb-4 p-4 bg-green-50 border border-green-200 rounded-lg';
+                    statusDiv.innerHTML = `
+                        <div class="flex items-start">
+                            <svg class="w-5 h-5 text-green-600 mr-3 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <div class="flex-1">
+                                <p class="text-sm font-semibold text-green-900">${'{{ __("Queue Test Completed") }}'}</p>
+                                <p class="text-xs text-green-700 mt-1">${data.message}</p>
+                            </div>
+                        </div>
+                    `;
+                    clearInterval(pollInterval);
+                    
+                    // Auto-hide after 10 seconds
+                    setTimeout(() => {
+                        statusDiv.style.transition = 'opacity 0.5s';
+                        statusDiv.style.opacity = '0';
+                        setTimeout(() => statusDiv.remove(), 500);
+                    }, 10000);
+                } else if (data.status === 'processing') {
+                    // Update message for processing state
+                    messageEl.textContent = data.message;
+                }
+                
+                // Stop polling after max attempts
+                if (pollCount >= maxPolls) {
+                    statusDiv.className = 'mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg';
+                    statusDiv.innerHTML = `
+                        <div class="flex items-start">
+                            <svg class="w-5 h-5 text-yellow-600 mr-3 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                            <div class="flex-1">
+                                <p class="text-sm font-semibold text-yellow-900">${'{{ __("Queue Test Timeout") }}'}</p>
+                                <p class="text-xs text-yellow-700 mt-1">${'{{ __("Test job is taking longer than expected. Check if queue worker is running.") }}'}</p>
+                            </div>
+                        </div>
+                    `;
+                    clearInterval(pollInterval);
+                }
+            })
+            .catch(error => {
+                console.error('Error checking queue status:', error);
+                clearInterval(pollInterval);
+            });
+    }
+    
+    // Start polling every second
+    pollInterval = setInterval(checkStatus, 1000);
+    
+    // Check immediately
+    checkStatus();
+})();
+</script>
+@endif
