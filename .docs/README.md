@@ -22,6 +22,16 @@ Learn how to use the application effectively:
 - Best practices for monitoring
 - Troubleshooting common issues
 
+### [Deployment Guide](deployment.md)
+Production deployment instructions including:
+- Production environment configuration
+- Queue worker setup with Supervisor
+- Laravel scheduler cron configuration
+- Queue monitoring and maintenance
+- Performance optimization
+- Security best practices
+- Backup strategies
+
 ## Quick Start
 
 1. **Install the application** - Follow the [Setup Guide](setup.md)
