@@ -21,8 +21,9 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Queue test route for verifying queue functionality
+    // Queue test routes for verifying queue functionality
     Route::post('/queue-test', [QueueTestController::class, 'dispatch'])->name('queue.test');
+    Route::get('/queue-status', [QueueTestController::class, 'status'])->name('queue.status');
 });
 
 // Protected notification settings routes
