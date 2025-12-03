@@ -112,4 +112,21 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Public Registration
+    |--------------------------------------------------------------------------
+    |
+    | This option controls whether public user registration is enabled for
+    | your application. When set to false, the registration routes will
+    | return a 403 Forbidden response. This allows you to control user
+    | creation through administrative tools while keeping registration
+    | disabled for the general public.
+    |
+    | Default: false (registration disabled)
+    |
+    */
+
+    'allow_public_registration' => env('ALLOW_PUBLIC_REGISTRATION', false),
+
 ];
