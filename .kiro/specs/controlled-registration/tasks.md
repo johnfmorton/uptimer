@@ -5,7 +5,7 @@
   - Update `.env.example` with `ALLOW_PUBLIC_REGISTRATION` variable and descriptive comments
   - _Requirements: 1.1, 3.1, 3.2_
 
-- [ ] 2. Create and configure RegistrationEnabled middleware
+- [x] 2. Create and configure RegistrationEnabled middleware
   - Create `app/Http/Middleware/RegistrationEnabled.php` middleware class
   - Implement logic to check `config('auth.allow_public_registration')`
   - Return 403 Forbidden response when registration is disabled
