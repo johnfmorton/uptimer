@@ -26,9 +26,19 @@
                             </div>
                         @endif
 
+                        @if (session('error'))
+                            <div class="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+                                {{ session('error') }}
+                            </div>
+                        @endif
+
                         <form method="post" action="{{ route('notification-settings.update') }}" class="mt-6 space-y-6">
                             @csrf
                             @method('patch')
+
+                            {{-- Hidden inputs to ensure unchecked checkboxes send false values --}}
+                            <input type="hidden" name="email_enabled" value="0">
+                            <input type="hidden" name="pushover_enabled" value="0">
 
                             {{-- Email Notifications Section --}}
                             <div class="border-b border-gray-200 pb-6">
@@ -187,6 +197,47 @@
                                 @endif
                             </div>
                         </form>
+
+                        {{-- Test Notification Buttons (Outside Main Form) --}}
+                        <div class="mt-6 space-y-4 border-t border-gray-200 pt-6">
+                            <h3 class="text-md font-medium text-gray-900 mb-4">
+                                {{ __('Test Notifications') }}
+                            </h3>
+
+                            @if($settings && $settings->email_enabled)
+                                <div>
+                                    <form method="POST" action="{{ route('notification-settings.test-email') }}" class="inline">
+                                        @csrf
+                                        <x-secondary-button type="submit">
+                                            {{ __('Send Test Email') }}
+                                        </x-secondary-button>
+                                    </form>
+                                    <p class="mt-2 text-sm text-gray-500">
+                                        {{ __('Send a test notification to verify your email configuration.') }}
+                                    </p>
+                                </div>
+                            @endif
+
+                            @if($settings && $settings->pushover_enabled)
+                                <div>
+                                    <form method="POST" action="{{ route('notification-settings.test-pushover') }}" class="inline">
+                                        @csrf
+                                        <x-secondary-button type="submit">
+                                            {{ __('Send Test Pushover') }}
+                                        </x-secondary-button>
+                                    </form>
+                                    <p class="mt-2 text-sm text-gray-500">
+                                        {{ __('Send a test notification to verify your Pushover configuration.') }}
+                                    </p>
+                                </div>
+                            @endif
+
+                            @if(!$settings || (!$settings->email_enabled && !$settings->pushover_enabled))
+                                <p class="text-sm text-gray-500">
+                                    {{ __('Enable email or Pushover notifications above to test them.') }}
+                                </p>
+                            @endif
+                        </div>
                     </section>
                 </div>
             </div>

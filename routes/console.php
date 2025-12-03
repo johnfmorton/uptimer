@@ -13,3 +13,6 @@ Schedule::command('monitors:schedule-checks')->everyMinute();
 
 // Update scheduler heartbeat every minute to track scheduler status
 Schedule::command('scheduler:heartbeat')->everyMinute();
+
+// Prune old check history daily at 2:00 AM
+Schedule::command('checks:prune')->dailyAt('02:00');

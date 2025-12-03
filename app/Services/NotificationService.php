@@ -132,7 +132,7 @@ class NotificationService
         
         $title = $status === 'down' ? 'Monitor Down' : 'Monitor Recovered';
         
-        $response = Http::asForm()->post('https://api.pushover.net/1/messages.json', [
+        $payload = [
             'token' => $api_token,
             'user' => $user_key,
             'message' => $message,
@@ -140,6 +140,84 @@ class NotificationService
             'priority' => $priority,
             'url' => $monitor->url,
             'url_title' => 'View Monitor',
+        ];
+        
+        // Priority 2 (emergency) requires expire and retry parameters
+        if ($priority === 2) {
+            $payload['expire'] = 3600; // Expire after 1 hour
+            $payload['retry'] = 60;    // Retry every 60 seconds
+        }
+        
+        $response = Http::asForm()->post('https://api.pushover.net/1/messages.json', $payload);
+        
+        if (! $response->successful()) {
+            throw new \RuntimeException(
+                "Pushover API request failed: {$response->status()} - {$response->body()}"
+            );
+        }
+    }
+
+    /**
+     * Send a test email notification.
+     *
+     * Sends a test email to verify email configuration is working correctly.
+     * Uses the user's notification settings for the email address.
+     *
+     * @param  \App\Models\User  $user
+     * @return void
+     * @throws \Exception If email sending fails
+     */
+    public function sendTestEmail(\App\Models\User $user): void
+    {
+        $notification_settings = $user->notificationSettings;
+        
+        if (! $notification_settings || ! $notification_settings->email_address) {
+            throw new \RuntimeException('Email address not configured');
+        }
+        
+        $subject = 'Test Notification - Email Configuration';
+        
+        $data = [
+            'user' => $user,
+            'timestamp' => now(),
+        ];
+        
+        Mail::send('emails.test-notification', $data, function ($message) use ($notification_settings, $subject) {
+            $message->to($notification_settings->email_address)
+                    ->subject($subject);
+        });
+    }
+
+    /**
+     * Send a test Pushover notification.
+     *
+     * Sends a test Pushover notification to verify Pushover configuration is working correctly.
+     * Uses the user's notification settings for Pushover credentials.
+     *
+     * @param  \App\Models\User  $user
+     * @return void
+     * @throws \Exception If Pushover sending fails
+     */
+    public function sendTestPushover(\App\Models\User $user): void
+    {
+        $notification_settings = $user->notificationSettings;
+        
+        if (! $notification_settings || 
+            ! $notification_settings->pushover_user_key || 
+            ! $notification_settings->pushover_api_token) {
+            throw new \RuntimeException('Pushover credentials not configured');
+        }
+        
+        $message = 'This is a test notification to verify your Pushover configuration is working correctly.';
+        $title = 'Test Notification';
+        $priority = 0; // Normal priority
+        
+        $response = Http::asForm()->post('https://api.pushover.net/1/messages.json', [
+            'token' => $notification_settings->pushover_api_token,
+            'user' => $notification_settings->pushover_user_key,
+            'message' => $message,
+            'title' => $title,
+            'priority' => $priority,
         ]);
         
         if (! $response->successful()) {

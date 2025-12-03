@@ -24,12 +24,25 @@ class UpdateNotificationSettingsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email_enabled' => 'required|boolean',
+            'email_enabled' => 'sometimes|boolean',
             'email_address' => 'nullable|email|max:255',
-            'pushover_enabled' => 'required|boolean',
+            'pushover_enabled' => 'sometimes|boolean',
             'pushover_user_key' => 'nullable|string|max:255',
             'pushover_api_token' => 'nullable|string|max:255',
         ];
+    }
+
+    /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        // Convert checkbox values to boolean
+        // Hidden inputs send "0", checked checkboxes send "1"
+        $this->merge([
+            'email_enabled' => $this->input('email_enabled') === '1' || $this->input('email_enabled') === 1,
+            'pushover_enabled' => $this->input('pushover_enabled') === '1' || $this->input('pushover_enabled') === 1,
+        ]);
     }
 
     /**
@@ -40,11 +53,9 @@ class UpdateNotificationSettingsRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'email_enabled.required' => 'Email notification preference is required.',
             'email_enabled.boolean' => 'Email notification preference must be true or false.',
             'email_address.email' => 'Please provide a valid email address.',
             'email_address.max' => 'Email address must not exceed 255 characters.',
-            'pushover_enabled.required' => 'Pushover notification preference is required.',
             'pushover_enabled.boolean' => 'Pushover notification preference must be true or false.',
             'pushover_user_key.max' => 'Pushover user key must not exceed 255 characters.',
             'pushover_api_token.max' => 'Pushover API token must not exceed 255 characters.',

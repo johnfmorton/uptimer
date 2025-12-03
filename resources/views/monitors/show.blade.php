@@ -216,7 +216,26 @@
                                         <tr class="{{ $check->wasFailed() ? 'bg-red-50' : '' }}">
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                 {{ $check->checked_at->format('Y-m-d H:i:s') }}
-                                                <span class="text-gray-500 text-xs block">{{ $check->checked_at->diffForHumans() }}</span>
+                                                <span class="text-gray-500 text-xs block">
+                                                    @php
+                                                        $diff_in_minutes = $check->checked_at->diffInMinutes(now());
+                                                        if ($diff_in_minutes < 1) {
+                                                            echo 'Just now';
+                                                        } elseif ($diff_in_minutes < 60) {
+                                                            echo $diff_in_minutes . ' ' . Str::plural('minute', $diff_in_minutes) . ' ago';
+                                                        } elseif ($diff_in_minutes < 1440) {
+                                                            $hours = floor($diff_in_minutes / 60);
+                                                            $mins = $diff_in_minutes % 60;
+                                                            echo $hours . ' ' . Str::plural('hour', $hours);
+                                                            if ($mins > 0) {
+                                                                echo ', ' . $mins . ' ' . Str::plural('minute', $mins);
+                                                            }
+                                                            echo ' ago';
+                                                        } else {
+                                                            echo $check->checked_at->diffForHumans();
+                                                        }
+                                                    @endphp
+                                                </span>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full

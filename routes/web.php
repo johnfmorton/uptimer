@@ -35,6 +35,8 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/notification-settings', [\App\Http\Controllers\NotificationSettingsController::class, 'edit'])->name('notification-settings.edit');
     Route::patch('/notification-settings', [\App\Http\Controllers\NotificationSettingsController::class, 'update'])->name('notification-settings.update');
+    Route::post('/notification-settings/test-email', [\App\Http\Controllers\NotificationSettingsController::class, 'testEmail'])->name('notification-settings.test-email');
+    Route::post('/notification-settings/test-pushover', [\App\Http\Controllers\NotificationSettingsController::class, 'testPushover'])->name('notification-settings.test-pushover');
 });
 
 // Protected monitor resource routes

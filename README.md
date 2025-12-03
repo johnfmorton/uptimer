@@ -128,6 +128,9 @@ ALLOW_PUBLIC_REGISTRATION=false
 # HTTP Check Timeout (seconds)
 CHECK_TIMEOUT=30
 
+# Check History Retention (days)
+CHECK_RETENTION_DAYS=30
+
 # Email Configuration
 MAIL_MAILER=smtp
 MAIL_FROM_ADDRESS="noreply@example.com"
@@ -138,6 +141,17 @@ PUSHOVER_API_TOKEN=your-api-token
 ```
 
 See [Environment Variables](.docs/environment-variables.md) for complete reference.
+
+### Check History Retention
+
+By default, check history is automatically deleted after 30 days to prevent database growth. This runs daily at 2:00 AM.
+
+- **Configure retention**: Set `CHECK_RETENTION_DAYS` in `.env` (default: 30)
+- **Manual cleanup**: `ddev artisan checks:prune`
+- **Custom retention**: `ddev artisan checks:prune --days=7`
+- **Keep all history**: Set `CHECK_RETENTION_DAYS=0` (not recommended)
+
+See [CHECK_RETENTION_POLICY.md](CHECK_RETENTION_POLICY.md) for detailed documentation.
 
 ## Architecture
 
