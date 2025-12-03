@@ -257,7 +257,7 @@
   - Include screenshots or examples where helpful
   - _Requirements: 13.1, 13.2, 13.3, 13.4, 13.5_
 
-- [ ] 23. Create database seeders for development
+- [x] 23. Create database seeders for development
   - Create UserSeeder to create test admin user
   - Create MonitorSeeder to create sample monitors
   - Create CheckSeeder to create sample check history
