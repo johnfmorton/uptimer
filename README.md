@@ -62,6 +62,21 @@ After initial setup, just run:
 make dev      # Launch your development environment
 ```
 
+## Documentation
+
+Comprehensive documentation is available in the `.docs` directory:
+
+- **[Documentation Index](.docs/README.md)** - Overview and quick links
+- **[Setup Guide](.docs/setup.md)** - Installation and configuration
+- **[Usage Guide](.docs/usage.md)** - How to use the uptime monitoring features
+- **[Environment Variables](.docs/environment-variables.md)** - Complete reference for all configuration options
+
+### Quick Links
+
+- **New to the project?** Start with the [Setup Guide](.docs/setup.md)
+- **Ready to monitor sites?** See the [Usage Guide](.docs/usage.md)
+- **Need to configure something?** Check [Environment Variables](.docs/environment-variables.md)
+
 ## Contribution and License
 
 This project is open source under the MIT License. We welcome contributions and suggestions!

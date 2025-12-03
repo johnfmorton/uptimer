@@ -224,31 +224,31 @@
   - Add route model binding for Monitor model
   - _Requirements: 1.1, 1.4, 1.5, 3.1_
 
-- [ ] 18. Set up environment configuration
+- [x] 18. Set up environment configuration
   - Add MAIL_* variables to .env.example for email configuration
   - Add PUSHOVER_USER_KEY and PUSHOVER_API_TOKEN to .env.example
   - Add CHECK_TIMEOUT variable (default 30 seconds)
   - Document all environment variables in .env.example comments
   - _Requirements: 8.1, 9.1, 9.3_
 
-- [ ] 19. Implement monitor authorization policies
+- [x] 19. Implement monitor authorization policies
   - Create MonitorPolicy class
   - Implement view, update, and delete policy methods
   - Ensure users can only access their own monitors
   - Register policy in AuthServiceProvider
   - _Requirements: 3.1, 4.1, 5.1_
 
-- [ ] 20. Add Alpine.js for interactive elements
+- [x] 20. Add Alpine.js for interactive elements
   - Include Alpine.js via CDN or npm
   - Implement delete confirmation dialog using Alpine.js
   - Add real-time status indicator updates (optional enhancement)
   - Keep JavaScript minimal and progressive enhancement focused
   - _Requirements: 5.3_
 
-- [ ] 21. Checkpoint - Ensure all tests pass
+- [x] 21. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 22. Create user documentation
+- [x] 22. Create user documentation
   - Create .docs directory structure
   - Write setup.md with installation instructions
   - Document environment variable configuration
