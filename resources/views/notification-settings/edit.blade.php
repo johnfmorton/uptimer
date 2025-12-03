@@ -83,54 +83,94 @@
                                     </a>
                                 </p>
 
-                                <div class="space-y-4">
-                                    <div class="flex items-center">
-                                        <input 
-                                            id="pushover_enabled" 
-                                            name="pushover_enabled" 
-                                            type="checkbox" 
-                                            value="1"
-                                            {{ old('pushover_enabled', $settings->pushover_enabled ?? false) ? 'checked' : '' }}
-                                            class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                                        >
-                                        <label for="pushover_enabled" class="ml-2 block text-sm text-gray-900">
-                                            {{ __('Enable Pushover notifications') }}
-                                        </label>
-                                    </div>
-                                    <x-input-error class="mt-2" :messages="$errors->get('pushover_enabled')" />
-
-                                    <div>
-                                        <x-input-label for="pushover_user_key" :value="__('Pushover User Key')" />
-                                        <x-text-input 
-                                            id="pushover_user_key" 
-                                            name="pushover_user_key" 
-                                            type="text" 
-                                            class="mt-1 block w-full" 
-                                            :value="old('pushover_user_key', $settings->pushover_user_key ?? '')" 
-                                            placeholder="Your Pushover user key"
-                                        />
-                                        <p class="mt-1 text-sm text-gray-500">
-                                            {{ __('Found in your Pushover dashboard.') }}
-                                        </p>
-                                        <x-input-error class="mt-2" :messages="$errors->get('pushover_user_key')" />
+                                @if($pushover_env_configured)
+                                    {{-- Show notice when credentials are set in .env --}}
+                                    <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                        <div class="flex items-start">
+                                            <svg class="w-5 h-5 text-blue-600 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            <div class="flex-1">
+                                                <h4 class="text-sm font-semibold text-blue-900 mb-1">
+                                                    {{ __('Pushover Credentials Configured') }}
+                                                </h4>
+                                                <p class="text-sm text-blue-800">
+                                                    {{ __('Pushover credentials have been set in your environment configuration (.env file). All users will use these shared credentials for Pushover notifications.') }}
+                                                </p>
+                                                <p class="text-sm text-blue-700 mt-2">
+                                                    <strong>{{ __('User Key:') }}</strong> {{ Str::mask(config('services.pushover.user_key'), '*', 0, -4) }}
+                                                </p>
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    <div>
-                                        <x-input-label for="pushover_api_token" :value="__('Pushover API Token')" />
-                                        <x-text-input 
-                                            id="pushover_api_token" 
-                                            name="pushover_api_token" 
-                                            type="password" 
-                                            class="mt-1 block w-full" 
-                                            :value="old('pushover_api_token', '')" 
-                                            placeholder="Your Pushover API token"
-                                        />
-                                        <p class="mt-1 text-sm text-gray-500">
-                                            {{ __('Your API token is encrypted and stored securely. Leave empty to keep existing token.') }}
-                                        </p>
-                                        <x-input-error class="mt-2" :messages="$errors->get('pushover_api_token')" />
+                                    <div class="space-y-4">
+                                        <div class="flex items-center">
+                                            <input 
+                                                id="pushover_enabled" 
+                                                name="pushover_enabled" 
+                                                type="checkbox" 
+                                                value="1"
+                                                {{ old('pushover_enabled', $settings->pushover_enabled ?? false) ? 'checked' : '' }}
+                                                class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                                            >
+                                            <label for="pushover_enabled" class="ml-2 block text-sm text-gray-900">
+                                                {{ __('Enable Pushover notifications') }}
+                                            </label>
+                                        </div>
+                                        <x-input-error class="mt-2" :messages="$errors->get('pushover_enabled')" />
                                     </div>
-                                </div>
+                                @else
+                                    {{-- Show input fields when credentials are not in .env --}}
+                                    <div class="space-y-4">
+                                        <div class="flex items-center">
+                                            <input 
+                                                id="pushover_enabled" 
+                                                name="pushover_enabled" 
+                                                type="checkbox" 
+                                                value="1"
+                                                {{ old('pushover_enabled', $settings->pushover_enabled ?? false) ? 'checked' : '' }}
+                                                class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                                            >
+                                            <label for="pushover_enabled" class="ml-2 block text-sm text-gray-900">
+                                                {{ __('Enable Pushover notifications') }}
+                                            </label>
+                                        </div>
+                                        <x-input-error class="mt-2" :messages="$errors->get('pushover_enabled')" />
+
+                                        <div>
+                                            <x-input-label for="pushover_user_key" :value="__('Pushover User Key')" />
+                                            <x-text-input 
+                                                id="pushover_user_key" 
+                                                name="pushover_user_key" 
+                                                type="text" 
+                                                class="mt-1 block w-full" 
+                                                :value="old('pushover_user_key', $settings->pushover_user_key ?? '')" 
+                                                placeholder="Your Pushover user key"
+                                            />
+                                            <p class="mt-1 text-sm text-gray-500">
+                                                {{ __('Found in your Pushover dashboard.') }}
+                                            </p>
+                                            <x-input-error class="mt-2" :messages="$errors->get('pushover_user_key')" />
+                                        </div>
+
+                                        <div>
+                                            <x-input-label for="pushover_api_token" :value="__('Pushover API Token')" />
+                                            <x-text-input 
+                                                id="pushover_api_token" 
+                                                name="pushover_api_token" 
+                                                type="password" 
+                                                class="mt-1 block w-full" 
+                                                :value="old('pushover_api_token', '')" 
+                                                placeholder="Your Pushover API token"
+                                            />
+                                            <p class="mt-1 text-sm text-gray-500">
+                                                {{ __('Your API token is encrypted and stored securely. Leave empty to keep existing token.') }}
+                                            </p>
+                                            <x-input-error class="mt-2" :messages="$errors->get('pushover_api_token')" />
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
 
                             <div class="flex items-center gap-4">

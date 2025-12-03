@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'pushover' => [
+        'user_key' => env('PUSHOVER_USER_KEY'),
+        'token' => env('PUSHOVER_API_TOKEN'),
+    ],
+
 ];

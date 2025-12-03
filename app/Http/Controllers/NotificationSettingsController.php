@@ -28,7 +28,11 @@ class NotificationSettingsController extends Controller
             'pushover_enabled' => false,
         ]);
 
-        return view('notification-settings.edit', compact('settings'));
+        // Check if Pushover credentials are set in .env
+        $pushover_env_configured = ! empty(config('services.pushover.user_key')) 
+            && ! empty(config('services.pushover.token'));
+
+        return view('notification-settings.edit', compact('settings', 'pushover_env_configured'));
     }
 
     /**
@@ -39,6 +43,17 @@ class NotificationSettingsController extends Controller
         /** @var User $user */
         $user = Auth::user();
         $validated = $request->validated();
+
+        // Check if Pushover credentials are set in .env
+        $pushover_env_configured = ! empty(config('services.pushover.user_key')) 
+            && ! empty(config('services.pushover.token'));
+
+        // If Pushover is configured in .env, remove user-provided credentials
+        // Users should only control the enabled/disabled state
+        if ($pushover_env_configured) {
+            unset($validated['pushover_user_key']);
+            unset($validated['pushover_api_token']);
+        }
 
         // Update or create notification settings
         // Pushover API token will be automatically encrypted via model casting
