@@ -1,82 +1,202 @@
-<p align="center">
-  <img src="kiro-laravel-skeleton-logo.png" alt="Kiro Laravel Skeleton Logo" style="width: 30%; max-width: 150px;">
-</p>
+# Uptimer
 
-# Kiro Laravel Skeleton
+A Laravel-based uptime monitoring application that helps you track website availability and receive instant notifications when your sites go down or recover.
 
-Build smarter with [Kiro](https://kiro.dev/ "Kiro homepage") and [Laravel](https://laravel.com "Laravel homepage") together: a clean, consistent starting point for any new project.
-
-![Kiro Laravel Skeleton Screenshot](kiro-laravel-skeleton-screenshotpng.jpg)
-
-## Introduction
-
-The **Kiro Laravel Skeleton** is preconfigured Laravel environment designed to turn Kiro output into profession-level code with minimal setup friction.
-
-This template makes building a Laravel app with Kiro simple. Kiro gives you the structure to design your app, and this skeleton turns that structure into a working Laravel project the moment you clone it. DDEV, Vite, Tailwind CSS, Mailpit, and hot-module reloading are already wired together, so you can focus on implementation instead of configuration.
-
-It also includes production-tested steering documents shaped by real-world Laravel development. These documents translate Kiro’s planning into consistent conventions, solid architecture, and clear workflows—making it easier to write maintainable code from day one.
-
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![PHP](https://img.shields.io/badge/PHP-8.4-777BB4?logo=php)
+![Laravel](https://img.shields.io/badge/Laravel-12-FF2D20?logo=laravel)
 
 ## Features
 
-* Laravel Ready: Comes pre-configured with a complete Laravel setup tailored for local development using DDEV.
-* Vite Integration: Includes a Vite build process with hot module reloading, making front-end development smooth and efficient.
-* Kiro Specs: Comes with highly tuned Kiro spec documents to ensure your code is human-readable and well-structured from the start.
-* Makefile Included: Start your project simply by running make dev for an easy, no-fuss development experience.
-
-## DDEV Requirements
-
-Since the project uses DDEV for local enviroment of your Laravel project, you'll need to have DDEV installed on your development machine. See the [DDEV getting started section](https://ddev.com/get-started/) of the documenation for instructions for Mac, Windows and Linux. Basically, you'll need to be able to install Docker images, and, depending on your platform, a way for local URLs to resolve.
-
-### Automatic DDEV Validation
-
-This project includes automatic DDEV installation checks that run before any DDEV-dependent commands. When you run `make setup`, `make dev`, or `make build`, the system will automatically verify that:
-
-* DDEV is installed and available in your PATH
-* DDEV can execute commands successfully
-* Docker is running and accessible to DDEV
-
-If any issues are detected, you'll receive clear error messages with specific troubleshooting steps. This ensures you don't encounter cryptic errors during setup.
-
-**Note**: The `make help` command does not require DDEV and will always work, even if DDEV is not installed.
+- 🔍 **HTTP Monitoring** - Periodic checks of website availability with configurable intervals
+- 📧 **Email Notifications** - Receive detailed alerts via email when status changes
+- 📱 **Pushover Integration** - Get instant push notifications on your mobile device
+- 📊 **Uptime Statistics** - Track reliability with 24-hour, 7-day, and 30-day uptime percentages
+- 📝 **Check History** - View detailed history of all checks with timestamps, status codes, and response times
+- ⚡ **Background Processing** - Asynchronous checks using Laravel queues for optimal performance
+- 🔐 **Controlled Registration** - Secure access with optional public registration control
+- 🎨 **Modern UI** - Clean, responsive interface built with Tailwind CSS and Alpine.js
 
 ## Quick Start
 
-1. **Clone the repo**: `git clone <https://github.com/johnfmorton/kiro-laravel-skeleton.git> your-project-name`
-2. **Navigate to the directory**: `cd your-project-name`
-3. **Run initial setup**: `make setup` (automatically checks DDEV, then installs dependencies, generates app key, runs migrations, builds assets)
-4. **Start development**: `make dev` (automatically checks DDEV, then launches browser, runs migrations, starts Vite dev server)
-5. **Create your Kiro specs**: open your project in Kiro, create specs for your project, and begin building your app
+### Prerequisites
 
-![Build your app's specs in Kiro](kiro-build-your-specs.jpg)
+- PHP 8.2 or higher
+- Composer 2
+- Node.js and NPM
+- DDEV (for local development)
+- MySQL 8.4 or SQLite
 
-Your Laravel app will be running at the URL shown by DDEV (typically `https://your-project-name.ddev.site`).
+### Installation
 
-**First-time users**: If you don't have DDEV installed, `make setup` will detect this and provide installation instructions with platform-specific commands.
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url> uptimer
+   cd uptimer
+   ```
 
-## Daily Development
+2. **Start DDEV environment**
+   ```bash
+   ddev start
+   ```
 
-After initial setup, just run:
+3. **Run setup**
+   ```bash
+   ddev composer run setup
+   ```
 
-```bash
-make dev      # Launch your development environment
-```
+4. **Create an admin user**
+   ```bash
+   ddev artisan user:create-admin
+   ```
+
+5. **Start development environment**
+   ```bash
+   ddev composer run dev
+   ```
+
+6. **Access the application**
+   
+   Open your browser to the URL shown by DDEV (typically `https://kiro-laravel-ddev-skeleton-template.ddev.site`)
 
 ## Documentation
 
 Comprehensive documentation is available in the `.docs` directory:
 
-- **[Documentation Index](.docs/README.md)** - Overview and quick links
-- **[Setup Guide](.docs/setup.md)** - Installation and configuration
-- **[Usage Guide](.docs/usage.md)** - How to use the uptime monitoring features
-- **[Environment Variables](.docs/environment-variables.md)** - Complete reference for all configuration options
+- **[Setup Guide](.docs/setup.md)** - Complete installation and configuration instructions
+- **[Usage Guide](.docs/usage.md)** - How to monitor sites and configure notifications
+- **[Deployment Guide](.docs/deployment.md)** - Production deployment instructions
+- **[Environment Variables](.docs/environment-variables.md)** - Configuration reference
 
-### Quick Links
+## How It Works
 
-- **New to the project?** Start with the [Setup Guide](.docs/setup.md)
-- **Ready to monitor sites?** See the [Usage Guide](.docs/usage.md)
-- **Need to configure something?** Check [Environment Variables](.docs/environment-variables.md)
+1. **Add Monitors** - Configure URLs you want to monitor with custom check intervals
+2. **Automatic Checks** - Laravel scheduler triggers checks every minute, queuing jobs for each monitor
+3. **Background Processing** - Queue workers execute HTTP checks asynchronously
+4. **Status Tracking** - Results are stored with timestamps, status codes, and response times
+5. **Smart Notifications** - Receive alerts only when status changes (up → down or down → up)
+6. **View Statistics** - Dashboard displays current status, uptime percentages, and check history
 
-## Contribution and License
+## Technology Stack
 
-This project is open source under the MIT License. We welcome contributions and suggestions!
+- **Backend**: Laravel 12 (PHP 8.4)
+- **Frontend**: Blade templates, Tailwind CSS 4, Alpine.js, Vite 7
+- **Database**: SQLite (default) or MySQL 8.4
+- **Queue**: Database driver (easily migrated to Redis)
+- **Development**: DDEV local environment with nginx-fpm
+
+## Key Commands
+
+### Development
+```bash
+ddev composer run dev      # Start all services (server, queue, logs, vite)
+ddev artisan serve         # Laravel development server only
+ddev npm run dev           # Vite dev server only
+```
+
+### User Management
+```bash
+ddev artisan user:create-admin    # Create admin user via CLI
+```
+
+### Queue & Scheduler
+```bash
+ddev artisan queue:work --tries=1  # Start queue worker
+ddev artisan schedule:run          # Run scheduled tasks manually
+ddev artisan pail                  # View real-time logs
+```
+
+### Testing
+```bash
+ddev composer run test     # Run test suite
+ddev artisan test          # Run PHPUnit tests
+```
+
+### Code Quality
+```bash
+ddev exec ./vendor/bin/pint        # Format code with Laravel Pint
+```
+
+## Configuration
+
+Key environment variables in `.env`:
+
+```env
+# Public Registration Control
+ALLOW_PUBLIC_REGISTRATION=false
+
+# HTTP Check Timeout (seconds)
+CHECK_TIMEOUT=30
+
+# Email Configuration
+MAIL_MAILER=smtp
+MAIL_FROM_ADDRESS="noreply@example.com"
+
+# Pushover Notifications (optional)
+PUSHOVER_USER_KEY=your-user-key
+PUSHOVER_API_TOKEN=your-api-token
+```
+
+See [Environment Variables](.docs/environment-variables.md) for complete reference.
+
+## Architecture
+
+The application follows Laravel's MVC architecture with service layers:
+
+```
+Web Interface (Blade + Tailwind CSS)
+         ↓
+    Controllers
+         ↓
+   Service Layer
+   - MonitorService (CRUD operations)
+   - CheckService (HTTP checks)
+   - NotificationService (Email & Pushover)
+         ↓
+    Models & Queue Jobs
+         ↓
+      Database
+```
+
+### Key Components
+
+- **Monitors** - Store URL, check interval, and current status
+- **Checks** - Record each check result with timestamp and details
+- **Queue Jobs** - Background processing for HTTP checks
+- **Scheduler** - Triggers checks every minute based on intervals
+- **Notifications** - Email and Pushover alerts on status changes
+
+## Security
+
+- **Controlled Registration** - Public registration disabled by default
+- **Admin User Creation** - CLI command for creating users without web access
+- **Authentication** - Laravel Breeze for secure user authentication
+- **Environment Variables** - Sensitive data stored in `.env` (not committed)
+
+## Contributing
+
+This project follows Laravel best practices:
+
+- PSR-12 code style (enforced with Laravel Pint)
+- Type-safe code with strict typing (`declare(strict_types=1)`)
+- Comprehensive test coverage (unit, feature, and property-based tests)
+- Service layer architecture for maintainability
+- Clear separation of concerns
+
+## License
+
+This project is open-sourced software licensed under the [MIT license](LICENSE).
+
+## Support
+
+- **Documentation**: Start with the [Setup Guide](.docs/setup.md)
+- **Issues**: Check application logs with `ddev artisan pail`
+- **Troubleshooting**: See [Setup Guide - Troubleshooting](.docs/setup.md#troubleshooting)
+
+## Built With Kiro
+
+This application was built using [Kiro](https://kiro.dev/), an AI-powered IDE that helps developers build Laravel applications faster. The project structure and steering documents are optimized for Kiro's spec-driven development workflow.
+
+---
+
+**Ready to monitor your sites?** Start with the [Setup Guide](.docs/setup.md) to get up and running in minutes.

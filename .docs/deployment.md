@@ -14,6 +14,59 @@ Before deploying to production, ensure you have:
 - Process manager (Supervisor recommended)
 - Cron access for Laravel scheduler
 
+## Initial Setup After Deployment
+
+### Create Your First Admin User
+
+After deploying the application and running migrations, you need to create an admin user to access the system. Public registration is disabled by default for security.
+
+#### Method 1: Using the Artisan Command (Recommended)
+
+The easiest way to create an admin user is using the built-in artisan command:
+
+```bash
+php artisan user:create-admin
+```
+
+The command will prompt you for:
+- Name
+- Email address
+- Password (minimum 8 characters)
+
+**Non-interactive mode** (useful for scripts):
+
+```bash
+php artisan user:create-admin \
+  --name="Admin User" \
+  --email="admin@example.com" \
+  --password="your-secure-password"
+```
+
+#### Method 2: Using Tinker (Manual)
+
+Alternatively, you can create a user manually using Laravel's Tinker REPL:
+
+```bash
+php artisan tinker
+```
+
+Then run the following PHP code:
+
+```php
+$user = new App\Models\User();
+$user->name = 'Admin User';
+$user->email = 'admin@example.com';
+$user->password = bcrypt('your-secure-password');
+$user->save();
+exit
+```
+
+**Important Security Notes:**
+- Use a strong, unique password for production
+- Store credentials securely (password manager recommended)
+- Consider changing the password after first login
+- Never commit credentials to version control
+
 ## Production Environment Configuration
 
 ### Environment Variables
@@ -597,6 +650,7 @@ Before deploying to production:
 - [ ] Configure production `.env` with secure credentials
 - [ ] Set `APP_DEBUG=false` and `APP_ENV=production`
 - [ ] Run database migrations: `php artisan migrate --force`
+- [ ] **Create admin user: `php artisan user:create-admin`**
 - [ ] Optimize application: `php artisan optimize`
 - [ ] Configure Supervisor for queue workers
 - [ ] Set up cron for Laravel scheduler
