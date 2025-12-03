@@ -22,7 +22,7 @@ class QueueTestController extends Controller
         TestQueueJob::dispatch($message);
 
         return redirect()
-            ->route('dashboard')
+            ->back()
             ->with('success', 'Test job dispatched to queue! Check logs with: ddev artisan pail');
     }
 

@@ -4,6 +4,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QueueDiagnosticsController;
 use App\Http\Controllers\QueueTestController;
+use App\Http\Controllers\SettingsController;
 use Illuminate\Support\Facades\Route;
 
 // Public welcome page
@@ -15,6 +16,11 @@ Route::get('/', function () {
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth'])
     ->name('dashboard');
+
+// Protected settings route
+Route::get('/settings', [SettingsController::class, 'index'])
+    ->middleware(['auth'])
+    ->name('settings');
 
 // Protected profile routes
 Route::middleware('auth')->group(function () {
