@@ -261,7 +261,7 @@
   - Include screenshots of queue status widget
   - _Requirements: 7.1, 7.2, 7.3_
 
-- [ ] 15. Enhance deployment documentation
+- [x] 15. Enhance deployment documentation
   - Update `.docs/deployment.md`
   - Add production queue worker setup instructions (supervisor/systemd)
   - Add production scheduler setup instructions (cron)
@@ -270,7 +270,7 @@
   - Add handling failed jobs procedures
   - _Requirements: 7.5_
 
-- [ ] 16. Enhance setup documentation
+- [x] 16. Enhance setup documentation
   - Update `.docs/setup.md`
   - Add queue worker to setup checklist
   - Add scheduler to setup checklist
@@ -279,5 +279,5 @@
   - Emphasize `ddev composer dev` for development
   - _Requirements: 7.1, 7.2, 7.4_
 
-- [ ] 17. Final checkpoint - Ensure all tests pass
+- [x] 17. Final checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
