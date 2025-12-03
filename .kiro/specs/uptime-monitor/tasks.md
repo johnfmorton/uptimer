@@ -150,14 +150,14 @@
   - **Property 16: Pushover notifications use correct priority**
   - **Validates: Requirements 9.4, 9.5**
 
-- [ ] 10. Create notification settings management
+- [x] 10. Create notification settings management
   - Create NotificationSettings model and migration
   - Create form for configuring email and Pushover settings
   - Create controller methods for updating notification settings
   - Validate and encrypt Pushover API tokens before storage
   - _Requirements: 8.1, 9.1, 9.3_
 
-- [ ] 11. Implement MonitorController for CRUD operations
+- [x] 11. Implement MonitorController for CRUD operations
   - Create MonitorController with resource methods
   - Implement index() to display all monitors for authenticated user
   - Implement create() to show monitor creation form
@@ -169,11 +169,11 @@
   - Add authorization policies to ensure users can only access their own monitors
   - _Requirements: 2.1, 2.2, 3.1, 4.1, 4.2, 4.4, 4.5, 5.1, 5.2, 5.4, 5.5, 10.1_
 
-- [ ]* 11.1 Write property test for dashboard displaying all user monitors
+- [x] 11.1 Write property test for dashboard displaying all user monitors
   - **Property 6: Dashboard displays all user monitors**
   - **Validates: Requirements 3.1**
 
-- [ ] 12. Implement DashboardController
+- [x] 12. Implement DashboardController
   - Create DashboardController with index method
   - Fetch all monitors for authenticated user with current status
   - Order monitors by status priority (down, up, pending)

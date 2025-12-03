@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QueueTestController;
 use Illuminate\Support\Facades\Route;
@@ -10,9 +11,9 @@ Route::get('/', function () {
 });
 
 // Protected dashboard route - requires authentication
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth'])
+    ->name('dashboard');
 
 // Protected profile routes
 Route::middleware('auth')->group(function () {
@@ -28,6 +29,11 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/notification-settings', [\App\Http\Controllers\NotificationSettingsController::class, 'edit'])->name('notification-settings.edit');
     Route::patch('/notification-settings', [\App\Http\Controllers\NotificationSettingsController::class, 'update'])->name('notification-settings.update');
+});
+
+// Protected monitor resource routes
+Route::middleware('auth')->group(function () {
+    Route::resource('monitors', \App\Http\Controllers\MonitorController::class);
 });
 
 // Authentication routes (login, register, logout, etc.)
