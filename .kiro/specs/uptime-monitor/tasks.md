@@ -197,7 +197,7 @@
   - Style with Tailwind CSS
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
 
-- [ ] 15. Create Blade views for monitor management
+- [x] 15. Create Blade views for monitor management
   - Create monitor create form with name, URL, and check interval fields
   - Create monitor edit form pre-populated with current values
   - Create monitor show view with details, statistics, and check history
@@ -207,7 +207,7 @@
   - Style all forms and views with Tailwind CSS
   - _Requirements: 2.1, 2.3, 2.4, 4.1, 5.3, 10.1, 10.2, 10.3, 10.4, 10.5, 11.1, 11.2, 11.3_
 
-- [ ] 16. Create email notification templates
+- [x] 16. Create email notification templates
   - Create Blade template for down notification email
   - Create Blade template for recovery notification email
   - Include monitor name, URL, status change, timestamp in both templates

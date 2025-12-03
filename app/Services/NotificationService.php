@@ -87,6 +87,9 @@ class NotificationService
             'timestamp' => now(),
         ];
         
+        // Determine which template to use based on status
+        $template = $status === 'down' ? 'emails.monitor-down' : 'emails.monitor-recovery';
+        
         // Add status-specific data
         if ($status === 'down') {
             $latest_check = $monitor->checks()->latest('checked_at')->first();
@@ -100,7 +103,7 @@ class NotificationService
             }
         }
         
-        Mail::send('emails.monitor-status-change', $data, function ($message) use ($email_address, $subject) {
+        Mail::send($template, $data, function ($message) use ($email_address, $subject) {
             $message->to($email_address)
                     ->subject($subject);
         });

@@ -119,13 +119,15 @@ class EmailNotificationRequiredDetailsPropertyTest extends TestCase
             'timestamp' => now(),
         ];
         
-        // Add error details for down status
+        // Determine which template to use and add status-specific data
+        $template = $status === 'down' ? 'emails.monitor-down' : 'emails.monitor-recovery';
+        
         if ($status === 'down') {
             $view_data['error_details'] = 'Test error';
             $view_data['status_code'] = 500;
         }
         
-        $rendered = View::make('emails.monitor-status-change', $view_data)->render();
+        $rendered = View::make($template, $view_data)->render();
         
         // Assert monitor name is present in the rendered view
         $this->assertStringContainsString($monitor_name, $rendered);
@@ -157,13 +159,15 @@ class EmailNotificationRequiredDetailsPropertyTest extends TestCase
             'timestamp' => now(),
         ];
         
-        // Add error details for down status
+        // Determine which template to use and add status-specific data
+        $template = $status === 'down' ? 'emails.monitor-down' : 'emails.monitor-recovery';
+        
         if ($status === 'down') {
             $view_data['error_details'] = 'Test error';
             $view_data['status_code'] = 500;
         }
         
-        $rendered = View::make('emails.monitor-status-change', $view_data)->render();
+        $rendered = View::make($template, $view_data)->render();
         
         // Assert monitor URL is present in the rendered view
         $this->assertStringContainsString($monitor_url, $rendered);
@@ -195,13 +199,15 @@ class EmailNotificationRequiredDetailsPropertyTest extends TestCase
             'timestamp' => now(),
         ];
         
-        // Add error details for down status
+        // Determine which template to use and add status-specific data
+        $template = $status === 'down' ? 'emails.monitor-down' : 'emails.monitor-recovery';
+        
         if ($status === 'down') {
             $view_data['error_details'] = 'Test error';
             $view_data['status_code'] = 500;
         }
         
-        $rendered = View::make('emails.monitor-status-change', $view_data)->render();
+        $rendered = View::make($template, $view_data)->render();
         
         // Assert status is present in the rendered view (case-insensitive)
         $this->assertStringContainsString(strtolower($status), strtolower($rendered));
@@ -235,13 +241,15 @@ class EmailNotificationRequiredDetailsPropertyTest extends TestCase
             'timestamp' => $timestamp,
         ];
         
-        // Add error details for down status
+        // Determine which template to use and add status-specific data
+        $template = $status === 'down' ? 'emails.monitor-down' : 'emails.monitor-recovery';
+        
         if ($status === 'down') {
             $view_data['error_details'] = 'Test error';
             $view_data['status_code'] = 500;
         }
         
-        $rendered = View::make('emails.monitor-status-change', $view_data)->render();
+        $rendered = View::make($template, $view_data)->render();
         
         // Assert timestamp is present - look for common date/time patterns
         // The email template uses format: 'F j, Y g:i A T' (e.g., "December 2, 2025 3:45 PM UTC")
@@ -279,13 +287,15 @@ class EmailNotificationRequiredDetailsPropertyTest extends TestCase
                 'timestamp' => $timestamp,
             ];
             
-            // Add error details for down status
+            // Determine which template to use and add status-specific data
+            $template = $status === 'down' ? 'emails.monitor-down' : 'emails.monitor-recovery';
+            
             if ($status === 'down') {
                 $view_data['error_details'] = 'Test error';
                 $view_data['status_code'] = 500;
             }
             
-            $rendered = View::make('emails.monitor-status-change', $view_data)->render();
+            $rendered = View::make($template, $view_data)->render();
             
             // Check all required fields
             $has_name = str_contains($rendered, $monitor_name);
