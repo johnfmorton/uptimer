@@ -41,6 +41,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::resource('monitors', \App\Http\Controllers\MonitorController::class);
     Route::post('/monitors/{monitor}/check', [\App\Http\Controllers\MonitorController::class, 'triggerCheck'])->name('monitors.check');
+    Route::get('/api/monitors', [\App\Http\Controllers\MonitorController::class, 'api'])->name('monitors.api');
 });
 
 // Authentication routes (login, register, logout, etc.)

@@ -25,18 +25,30 @@ class TestQueueJob implements ShouldQueue
      */
     public function handle(): void
     {
+        $start_time = now();
+        
         // Log the test message to verify queue is working
-        Log::info('Test Queue Job Executed', [
+        Log::info('🚀 Queue Test Job Started', [
+            'job_id' => $this->job?->getJobId(),
             'message' => $this->message,
-            'timestamp' => now()->toDateTimeString(),
+            'queue' => $this->queue ?? 'default',
+            'started_at' => $start_time->toDateTimeString(),
         ]);
 
         // Simulate some work
         sleep(2);
 
-        Log::info('Test Queue Job Completed', [
+        $end_time = now();
+        $duration = $end_time->diffInSeconds($start_time);
+
+        Log::info('✅ Queue Test Job Successfully Completed - Queue System is Working!', [
+            'job_id' => $this->job?->getJobId(),
             'message' => $this->message,
-            'timestamp' => now()->toDateTimeString(),
+            'queue' => $this->queue ?? 'default',
+            'started_at' => $start_time->toDateTimeString(),
+            'completed_at' => $end_time->toDateTimeString(),
+            'duration_seconds' => $duration,
+            'status' => 'success',
         ]);
     }
 }

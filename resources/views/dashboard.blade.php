@@ -38,7 +38,7 @@
             {{-- Queue Status Alert (hidden by default) --}}
             <div id="queueStatusAlert" class="mb-4 px-4 py-3 rounded relative hidden" role="alert">
                 <div class="flex items-start">
-                    <svg id="queueStatusIcon" class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg id="queueStatusIcon" class="w-5 h-5 mr-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                     <div class="flex-1">
@@ -75,7 +75,7 @@
             @else
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     @foreach($monitors as $monitor)
-                        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 {{ $monitor->isDown() ? 'border-red-500 bg-red-50' : ($monitor->isUp() ? 'border-green-500' : 'border-yellow-500') }} transition-all hover:shadow-md">
+                        <div data-monitor-id="{{ $monitor->id }}" class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 {{ $monitor->isDown() ? 'border-red-500 bg-red-50' : ($monitor->isUp() ? 'border-green-500' : 'border-yellow-500') }} transition-all hover:shadow-md">
                             <div class="p-6">
                                 {{-- Monitor Header --}}
                                 <div class="flex items-start justify-between mb-4">
@@ -87,7 +87,7 @@
                                             {{ $monitor->url }}
                                         </p>
                                     </div>
-                                    <span class="ml-2 px-2.5 py-1 text-xs font-semibold rounded-full whitespace-nowrap
+                                    <span data-status-badge class="ml-2 px-2.5 py-1 text-xs font-semibold rounded-full whitespace-nowrap
                                         {{ $monitor->isUp() ? 'bg-green-100 text-green-800' : '' }}
                                         {{ $monitor->isDown() ? 'bg-red-100 text-red-800' : '' }}
                                         {{ $monitor->isPending() ? 'bg-yellow-100 text-yellow-800' : '' }}">
@@ -102,9 +102,9 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                         </svg>
                                         @if($monitor->last_checked_at)
-                                            <span>{{ $monitor->last_checked_at->diffForHumans() }}</span>
+                                            <span data-last-checked>{{ $monitor->last_checked_at->diffForHumans() }}</span>
                                         @else
-                                            <span class="text-gray-400">{{ __('Not checked yet') }}</span>
+                                            <span data-last-checked class="text-gray-400">{{ __('Not checked yet') }}</span>
                                         @endif
                                     </div>
 
@@ -117,7 +117,7 @@
                                             <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                                             </svg>
-                                            <span>{{ $latest_check->response_time_ms }}ms</span>
+                                            <span data-response-time>{{ $latest_check->response_time_ms }}ms</span>
                                         </div>
                                     @endif
 
@@ -131,10 +131,10 @@
 
                                 {{-- Monitor Actions --}}
                                 <div class="flex gap-2 pt-4 border-t border-gray-200">
-                                    <a href="{{ route('monitors.show', $monitor) }}" class="flex-1 text-center px-3 py-2 text-sm font-medium text-indigo-600 hover:text-indigo-900 hover:bg-indigo-50 rounded-md transition-colors">
+                                    <a href="{{ route('monitors.show', $monitor) }}" class="border border-gray-200 flex-1 text-center px-3 py-2 text-sm font-medium text-indigo-600 hover:text-indigo-900 hover:bg-indigo-50 rounded-md transition-colors">
                                         {{ __('View Details') }}
                                     </a>
-                                    <a href="{{ route('monitors.edit', $monitor) }}" class="flex-1 text-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors">
+                                    <a href="{{ route('monitors.edit', $monitor) }}" class="border border-gray-200 flex-1 text-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors">
                                         {{ __('Edit') }}
                                     </a>
                                 </div>

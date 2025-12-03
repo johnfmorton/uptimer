@@ -10,6 +10,7 @@ use App\Jobs\PerformMonitorCheck;
 use App\Models\Monitor;
 use App\Services\MonitorService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -151,5 +152,37 @@ class MonitorController extends Controller
         return redirect()
             ->back()
             ->with('success', 'Check has been queued for ' . $monitor->name . '. Results will appear shortly.');
+    }
+
+    /**
+     * Return JSON array of all user's monitors for AJAX polling.
+     *
+     * @return JsonResponse
+     */
+    public function api(): JsonResponse
+    {
+        $monitors = Auth::user()->monitors()
+            ->select('id', 'name', 'url', 'status', 'last_checked_at')
+            ->with(['checks' => function ($query) {
+                $query->select('monitor_id', 'response_time_ms')
+                    ->latest('checked_at')
+                    ->limit(1);
+            }])
+            ->get()
+            ->map(function ($monitor) {
+                return [
+                    'id' => $monitor->id,
+                    'name' => $monitor->name,
+                    'url' => $monitor->url,
+                    'status' => $monitor->status,
+                    'last_checked_at' => $monitor->last_checked_at?->toIso8601String(),
+                    'last_checked_at_human' => $monitor->last_checked_at?->diffForHumans() ?? 'Not checked yet',
+                    'latest_response_time_ms' => $monitor->checks->first()?->response_time_ms,
+                ];
+            });
+
+        return response()->json([
+            'monitors' => $monitors,
+        ]);
     }
 }

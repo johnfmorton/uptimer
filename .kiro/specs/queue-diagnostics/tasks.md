@@ -184,7 +184,7 @@
 - [x] 9. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 10. Create dashboard auto-refresh JavaScript
+- [x] 10. Create dashboard auto-refresh JavaScript
   - Create `resources/js/dashboard-refresh.js`
   - Implement polling function using `setInterval()` for 30-second intervals
   - Use `fetch()` API to call `/api/monitors` endpoint
@@ -217,7 +217,7 @@
   - **Property 23: Polling error resilience**
   - **Validates: Requirements 5.5**
 
-- [ ] 11. Create API endpoint for monitor status polling
+- [x] 11. Create API endpoint for monitor status polling
   - Add `api()` method to `app/Http/Controllers/MonitorController.php`
   - Return JSON array of all user's monitors with status and last_checked_at
   - Add route: `GET /api/monitors`
@@ -225,20 +225,20 @@
   - Optimize query with only necessary fields
   - _Requirements: 5.1, 5.2, 5.3_
 
-- [ ]* 11.1 Write feature test for monitors API endpoint
+- [x] 11.1 Write feature test for monitors API endpoint
   - Test endpoint returns correct JSON structure
   - Test endpoint requires authentication
   - Test endpoint returns only user's monitors
   - _Requirements: 5.1, 5.2, 5.3_
 
-- [ ] 12. Integrate auto-refresh JavaScript into dashboard
+- [x] 12. Integrate auto-refresh JavaScript into dashboard
   - Import `dashboard-refresh.js` in `resources/js/app.js`
   - Initialize auto-refresh on dashboard page load
   - Add data attributes to monitor elements for JavaScript targeting
   - Ensure JavaScript only runs on dashboard page
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-- [ ] 13. Update TestQueueJob to log clear success message
+- [x] 13. Update TestQueueJob to log clear success message
   - Enhance `app/Jobs/TestQueueJob.php` handle method
   - Ensure log message clearly indicates successful queue processing
   - Include timestamp and job details in log
@@ -252,7 +252,7 @@
   - **Property 4: Job persistence without worker**
   - **Validates: Requirements 1.4**
 
-- [ ] 14. Enhance queue testing documentation
+- [x] 14. Enhance queue testing documentation
   - Update `.docs/queue-testing.md`
   - Add section on using "Test Queue" button
   - Add section on using "Check Now" button
