@@ -4,11 +4,19 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Services\QueueDiagnosticsService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
+    /**
+     * Create a new controller instance.
+     */
+    public function __construct(
+        private QueueDiagnosticsService $diagnosticsService
+    ) {}
+
     /**
      * Display the dashboard with all monitors for the authenticated user.
      *
@@ -36,8 +44,12 @@ class DashboardController extends Controller
             ->orderBy('name')
             ->get();
 
+        // Get queue diagnostics
+        $diagnostics = $this->diagnosticsService->getQueueDiagnostics();
+
         return view('dashboard', [
             'monitors' => $monitors,
+            'diagnostics' => $diagnostics,
         ]);
     }
 }

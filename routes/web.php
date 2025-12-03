@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\QueueDiagnosticsController;
 use App\Http\Controllers\QueueTestController;
 use Illuminate\Support\Facades\Route;
 
@@ -24,6 +25,10 @@ Route::middleware('auth')->group(function () {
     // Queue test routes for verifying queue functionality
     Route::post('/queue-test', [QueueTestController::class, 'dispatch'])->name('queue.test');
     Route::get('/queue-status', [QueueTestController::class, 'status'])->name('queue.status');
+
+    // Queue diagnostics routes
+    Route::post('/queue/test', [QueueDiagnosticsController::class, 'testQueue'])->name('queue.diagnostics.test');
+    Route::get('/api/queue/status', [QueueDiagnosticsController::class, 'status'])->name('queue.diagnostics.status');
 });
 
 // Protected notification settings routes
@@ -35,6 +40,7 @@ Route::middleware('auth')->group(function () {
 // Protected monitor resource routes
 Route::middleware('auth')->group(function () {
     Route::resource('monitors', \App\Http\Controllers\MonitorController::class);
+    Route::post('/monitors/{monitor}/check', [\App\Http\Controllers\MonitorController::class, 'triggerCheck'])->name('monitors.check');
 });
 
 // Authentication routes (login, register, logout, etc.)

@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreMonitorRequest;
 use App\Http\Requests\UpdateMonitorRequest;
+use App\Jobs\PerformMonitorCheck;
 use App\Models\Monitor;
 use App\Services\MonitorService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -133,5 +134,22 @@ class MonitorController extends Controller
         return redirect()
             ->route('monitors.index')
             ->with('success', 'Monitor deleted successfully.');
+    }
+
+    /**
+     * Manually trigger a check for a specific monitor.
+     *
+     * @param  Monitor  $monitor
+     * @return RedirectResponse
+     */
+    public function triggerCheck(Monitor $monitor): RedirectResponse
+    {
+        $this->authorize('view', $monitor);
+        
+        PerformMonitorCheck::dispatch($monitor);
+        
+        return redirect()
+            ->back()
+            ->with('success', 'Check has been queued for ' . $monitor->name . '. Results will appear shortly.');
     }
 }

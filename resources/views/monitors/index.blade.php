@@ -103,6 +103,12 @@
                                     <a href="{{ route('monitors.show', $monitor) }}" class="flex-1 text-center px-3 py-2 text-sm font-medium text-indigo-600 hover:text-indigo-900 hover:bg-indigo-50 rounded-md transition-colors">
                                         {{ __('View Details') }}
                                     </a>
+                                    <form method="POST" action="{{ route('monitors.check', $monitor) }}" class="flex-1">
+                                        @csrf
+                                        <button type="submit" class="w-full px-3 py-2 text-sm font-medium text-green-600 hover:text-green-900 hover:bg-green-50 rounded-md transition-colors">
+                                            {{ __('Check Now') }}
+                                        </button>
+                                    </form>
                                     <a href="{{ route('monitors.edit', $monitor) }}" class="flex-1 text-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors">
                                         {{ __('Edit') }}
                                     </a>

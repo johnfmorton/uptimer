@@ -10,3 +10,6 @@ Artisan::command('inspire', function () {
 
 // Schedule monitor checks to run every minute
 Schedule::command('monitors:schedule-checks')->everyMinute();
+
+// Update scheduler heartbeat every minute to track scheduler status
+Schedule::command('scheduler:heartbeat')->everyMinute();

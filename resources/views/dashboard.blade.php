@@ -30,6 +30,11 @@
                 </div>
             @endif
 
+            {{-- Queue Status Component --}}
+            <div class="mb-6">
+                <x-queue-status :diagnostics="$diagnostics" />
+            </div>
+
             {{-- Queue Status Alert (hidden by default) --}}
             <div id="queueStatusAlert" class="mb-4 px-4 py-3 rounded relative hidden" role="alert">
                 <div class="flex items-start">
