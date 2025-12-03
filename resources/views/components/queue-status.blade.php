@@ -24,7 +24,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             {{-- Queue Worker Status --}}
             <div class="flex items-start space-x-3 p-3 rounded-lg {{ $diagnostics['queue_worker_running'] ? 'bg-green-50' : 'bg-red-50' }}">
-                <div class="flex-shrink-0">
+                <div class="shrink-0">
                     @if($diagnostics['queue_worker_running'])
                         <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -47,7 +47,7 @@
 
             {{-- Scheduler Status --}}
             <div class="flex items-start space-x-3 p-3 rounded-lg {{ $diagnostics['scheduler_running'] ? 'bg-green-50' : 'bg-red-50' }}">
-                <div class="flex-shrink-0">
+                <div class="shrink-0">
                     @if($diagnostics['scheduler_running'])
                         <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -96,7 +96,7 @@
         @if($diagnostics['queue_worker_running'] && $diagnostics['scheduler_running'])
             <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
                 <div class="flex items-start">
-                    <svg class="w-5 h-5 text-green-600 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-green-600 mr-3 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                     <div>
@@ -113,7 +113,7 @@
         @if(!$diagnostics['queue_worker_running'])
             <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
                 <div class="flex items-start">
-                    <svg class="w-5 h-5 text-red-600 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-red-600 mr-3 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                     </svg>
                     <div class="flex-1">
@@ -123,11 +123,10 @@
                         </p>
                         <div class="mt-3 p-3 bg-white rounded border border-red-200">
                             <p class="text-xs font-semibold text-gray-900 mb-2">{{ __('To start the queue worker:') }}</p>
-                            <code class="block text-xs bg-gray-900 text-green-400 p-2 rounded font-mono">ddev artisan queue:work --tries=1</code>
+                            <code class="block text-xs bg-gray-900 text-green-400 p-2 rounded font-mono">php artisan queue:work --tries=1</code>
                             <p class="text-xs text-gray-600 mt-2">
-                                {{ __('Or use the development command that includes the queue worker:') }}
+                                {{ __('For production, use a process manager like Supervisor to keep the worker running.') }}
                             </p>
-                            <code class="block text-xs bg-gray-900 text-green-400 p-2 rounded font-mono mt-1">ddev composer dev</code>
                         </div>
                     </div>
                 </div>
@@ -137,7 +136,7 @@
         @if(!$diagnostics['scheduler_running'])
             <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
                 <div class="flex items-start">
-                    <svg class="w-5 h-5 text-red-600 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-red-600 mr-3 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                     </svg>
                     <div class="flex-1">
@@ -147,11 +146,11 @@
                         </p>
                         <div class="mt-3 p-3 bg-white rounded border border-red-200">
                             <p class="text-xs font-semibold text-gray-900 mb-2">{{ __('To start the scheduler:') }}</p>
-                            <code class="block text-xs bg-gray-900 text-green-400 p-2 rounded font-mono">ddev artisan schedule:work</code>
+                            <code class="block text-xs bg-gray-900 text-green-400 p-2 rounded font-mono">php artisan schedule:work</code>
                             <p class="text-xs text-gray-600 mt-2">
-                                {{ __('Or use the development command that includes the scheduler:') }}
+                                {{ __('For production, add this cron entry to run every minute:') }}
                             </p>
-                            <code class="block text-xs bg-gray-900 text-green-400 p-2 rounded font-mono mt-1">ddev composer dev</code>
+                            <code class="block text-xs bg-gray-900 text-green-400 p-2 rounded font-mono mt-1">* * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1</code>
                         </div>
                     </div>
                 </div>
@@ -161,7 +160,7 @@
         @if($diagnostics['stuck_jobs'] > 0)
             <div class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                 <div class="flex items-start">
-                    <svg class="w-5 h-5 text-yellow-600 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-yellow-600 mr-3 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                     </svg>
                     <div>
@@ -178,16 +177,16 @@
         @if($diagnostics['has_issues'])
             <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                 <div class="flex items-start">
-                    <svg class="w-5 h-5 text-blue-600 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-blue-600 mr-3 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                     <div>
                         <p class="text-sm font-semibold text-blue-900">{{ __('Troubleshooting Tips') }}</p>
                         <ul class="text-xs text-blue-700 mt-2 space-y-1 list-disc list-inside">
-                            <li>{{ __('Make sure you have started the DDEV environment with') }} <code class="bg-blue-100 px-1 rounded">ddev start</code></li>
-                            <li>{{ __('Use') }} <code class="bg-blue-100 px-1 rounded">ddev composer dev</code> {{ __('to start all services at once') }}</li>
-                            <li>{{ __('Check the logs with') }} <code class="bg-blue-100 px-1 rounded">ddev artisan pail</code> {{ __('for error messages') }}</li>
+                            <li>{{ __('Check the logs with') }} <code class="bg-blue-100 px-1 rounded">php artisan pail</code> {{ __('for error messages') }}</li>
                             <li>{{ __('Verify your .env file has') }} <code class="bg-blue-100 px-1 rounded">QUEUE_CONNECTION=database</code></li>
+                            <li>{{ __('Ensure the queue worker process is running and not crashed') }}</li>
+                            <li>{{ __('For production, use a process manager like Supervisor to auto-restart workers') }}</li>
                         </ul>
                     </div>
                 </div>
