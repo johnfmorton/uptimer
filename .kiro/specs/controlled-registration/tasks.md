@@ -24,7 +24,7 @@
   - **Property 3: Only true enables registration**
   - **Validates: Requirements 1.5**
 
-- [ ] 3. Apply middleware to registration routes
+- [x] 3. Apply middleware to registration routes
   - Update `routes/auth.php` to apply `registration.enabled` middleware to registration routes
   - Ensure other authentication routes (login, password reset, profile) remain unchanged
   - _Requirements: 1.2, 1.3, 4.1, 4.2, 4.3, 4.4_
@@ -34,7 +34,7 @@
   - Test other auth routes do not have registration middleware
   - _Requirements: 1.2, 1.3_
 
-- [ ] 4. Create CreateAdminUser artisan command
+- [x] 4. Create CreateAdminUser artisan command
   - Generate command using `ddev artisan make:command CreateAdminUser`
   - Set command signature to `user:create-admin` with optional parameters: `--name`, `--email`, `--password`
   - Set command description to "Create a new admin user"
