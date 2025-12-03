@@ -22,7 +22,11 @@ class DashboardController extends Controller
 
         // Fetch all monitors for the user, ordered by status priority
         // (down first, then up, then pending)
+        // Eager load the most recent check for response time display
         $monitors = $user->monitors()
+            ->with(['checks' => function ($query) {
+                $query->latest('checked_at')->limit(1);
+            }])
             ->orderByRaw("CASE 
                 WHEN status = 'down' THEN 1 
                 WHEN status = 'up' THEN 2 

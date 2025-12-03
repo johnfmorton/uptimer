@@ -180,14 +180,14 @@
   - Pass monitors to dashboard view
   - _Requirements: 3.1, 3.5_
 
-- [ ] 13. Create Blade views for authentication
+- [x] 13. Create Blade views for authentication
   - Create login view with email and password fields
   - Add CSRF protection to login form
   - Style with Tailwind CSS for clean, modern appearance
   - Add validation error display
   - _Requirements: 1.1, 1.2, 1.3_
 
-- [ ] 14. Create Blade views for dashboard
+- [x] 14. Create Blade views for dashboard
   - Create dashboard layout with header, navigation, and footer
   - Create dashboard index view displaying monitor cards
   - Show monitor name, URL, status, last check time, and response time
