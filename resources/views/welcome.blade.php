@@ -50,8 +50,10 @@
             @endif
         </header>
         <div class="flex items-center justify-center w-full transition-opacity opacity-100 duration-750 grow starting:opacity-0">
-            <main class="flex max-w-[335px] w-full flex-col-reverse lg:max-w-4xl lg:flex-row">
-                <h1 class="text-5xl pt-10 pb-16 mb-6 text-center bg-amber-300 mx-auto px-16 font-extrabold rounded-b-full">Uptimer</h1>
+            <main class="flex max-w-[335px] w-full flex-col lg:max-w-4xl">
+                <h1 class="sr-only">Uptimer</h1>
+                <img src="/uptimer-logo.svg" alt="Uptimer logo" class="mx-auto">
+                <p class="text-center py-5 text-lg">Are your sites up?</p>
             </main>
         </div>
 
