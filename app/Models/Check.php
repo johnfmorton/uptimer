@@ -60,6 +60,42 @@ class Check extends Model
     }
 
     /**
+     * Get the checked_at attribute in display timezone.
+     *
+     * @param  \DateTimeInterface|null  $value
+     * @return \Illuminate\Support\Carbon|null
+     */
+    public function getCheckedAtAttribute($value): ?\Illuminate\Support\Carbon
+    {
+        if ($value === null) {
+            return null;
+        }
+        
+        $display_timezone = config('app.display_timezone');
+        
+        return \Illuminate\Support\Carbon::parse($value)
+            ->timezone($display_timezone);
+    }
+
+    /**
+     * Get the created_at attribute in display timezone.
+     *
+     * @param  \DateTimeInterface|null  $value
+     * @return \Illuminate\Support\Carbon|null
+     */
+    public function getCreatedAtAttribute($value): ?\Illuminate\Support\Carbon
+    {
+        if ($value === null) {
+            return null;
+        }
+        
+        $display_timezone = config('app.display_timezone');
+        
+        return \Illuminate\Support\Carbon::parse($value)
+            ->timezone($display_timezone);
+    }
+
+    /**
      * Check if the check was successful.
      *
      * @return bool

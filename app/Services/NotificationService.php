@@ -84,7 +84,7 @@ class NotificationService
         $data = [
             'monitor' => $monitor,
             'status' => $status,
-            'timestamp' => now(),
+            'timestamp' => now()->timezone(config('app.display_timezone')),
         ];
         
         // Determine which template to use based on status
@@ -179,7 +179,7 @@ class NotificationService
         
         $data = [
             'user' => $user,
-            'timestamp' => now(),
+            'timestamp' => now()->timezone(config('app.display_timezone')),
         ];
         
         Mail::send('emails.test-notification', $data, function ($message) use ($notification_settings, $subject) {

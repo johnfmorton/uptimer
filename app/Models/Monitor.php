@@ -63,6 +63,42 @@ class Monitor extends Model
     }
 
     /**
+     * Get the last_checked_at attribute in display timezone.
+     *
+     * @param  \DateTimeInterface|null  $value
+     * @return \Illuminate\Support\Carbon|null
+     */
+    public function getLastCheckedAtAttribute($value): ?\Illuminate\Support\Carbon
+    {
+        if ($value === null) {
+            return null;
+        }
+        
+        $display_timezone = config('app.display_timezone');
+        
+        return \Illuminate\Support\Carbon::parse($value)
+            ->timezone($display_timezone);
+    }
+
+    /**
+     * Get the last_status_change_at attribute in display timezone.
+     *
+     * @param  \DateTimeInterface|null  $value
+     * @return \Illuminate\Support\Carbon|null
+     */
+    public function getLastStatusChangeAtAttribute($value): ?\Illuminate\Support\Carbon
+    {
+        if ($value === null) {
+            return null;
+        }
+        
+        $display_timezone = config('app.display_timezone');
+        
+        return \Illuminate\Support\Carbon::parse($value)
+            ->timezone($display_timezone);
+    }
+
+    /**
      * Check if the monitor is currently up.
      *
      * @return bool

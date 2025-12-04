@@ -94,7 +94,7 @@ class MonitorService
      */
     private function calculateUptime(Monitor $monitor, int $hours): ?float
     {
-        $since = Carbon::now(config('app.timezone'))->subHours($hours);
+        $since = Carbon::now('UTC')->subHours($hours);
         
         $checks = $monitor->checks()
             ->where('checked_at', '>=', $since)
