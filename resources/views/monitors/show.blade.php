@@ -122,7 +122,7 @@
                             <div class="mb-2">
                                 <span class="text-3xl font-bold text-gray-900">
                                     @if($uptime_24h !== null)
-                                        {{ number_format($uptime_24h, 2) }}%
+                                        {{ $uptime_24h == 100 ? '100' : number_format($uptime_24h, 2) }}%
                                     @else
                                         {{ __('N/A') }}
                                     @endif
@@ -141,7 +141,7 @@
                             <div class="mb-2">
                                 <span class="text-3xl font-bold text-gray-900">
                                     @if($uptime_7d !== null)
-                                        {{ number_format($uptime_7d, 2) }}%
+                                        {{ $uptime_7d == 100 ? '100' : number_format($uptime_7d, 2) }}%
                                     @else
                                         {{ __('N/A') }}
                                     @endif
@@ -160,7 +160,7 @@
                             <div class="mb-2">
                                 <span class="text-3xl font-bold text-gray-900">
                                     @if($uptime_30d !== null)
-                                        {{ number_format($uptime_30d, 2) }}%
+                                        {{ $uptime_30d == 100 ? '100' : number_format($uptime_30d, 2) }}%
                                     @else
                                         {{ __('N/A') }}
                                     @endif
