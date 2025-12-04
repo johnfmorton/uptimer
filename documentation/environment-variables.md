@@ -38,6 +38,13 @@ This document provides a complete reference for all environment variables used i
 - **Required**: Yes
 - **Note**: Used for generating links in emails and notifications
 
+### APP_TIMEZONE
+- **Description**: The default timezone for your application
+- **Default**: `UTC`
+- **Example**: `APP_TIMEZONE=America/New_York`
+- **Required**: No
+- **Note**: Used by PHP date and date-time functions. See [PHP Timezones](https://www.php.net/manual/en/timezones.php) for valid values
+
 ## Database Configuration
 
 ### DB_CONNECTION
@@ -239,6 +246,7 @@ APP_NAME="Uptime Monitor"
 APP_ENV=local
 APP_DEBUG=true
 APP_URL=https://kiro-laravel-ddev-skeleton-template.ddev.site
+APP_TIMEZONE=UTC
 
 DB_CONNECTION=sqlite
 
@@ -263,6 +271,7 @@ APP_NAME="Uptime Monitor"
 APP_ENV=production
 APP_DEBUG=false
 APP_URL=https://monitor.example.com
+APP_TIMEZONE=UTC
 
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
@@ -301,6 +310,7 @@ APP_NAME="Uptime Monitor (Staging)"
 APP_ENV=staging
 APP_DEBUG=true
 APP_URL=https://staging-monitor.example.com
+APP_TIMEZONE=UTC
 
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
