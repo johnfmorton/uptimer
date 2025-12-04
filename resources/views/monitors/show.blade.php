@@ -222,7 +222,7 @@
                                                         if ($diff_in_minutes < 1) {
                                                             echo 'Just now';
                                                         } elseif ($diff_in_minutes < 60) {
-                                                            echo $diff_in_minutes . ' ' . Str::plural('minute', $diff_in_minutes) . ' ago';
+                                                            echo $check->checked_at->diffForHumans();
                                                         } elseif ($diff_in_minutes < 1440) {
                                                             $hours = floor($diff_in_minutes / 60);
                                                             $mins = $diff_in_minutes % 60;
