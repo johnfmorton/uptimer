@@ -249,7 +249,7 @@
   - Ensure all tests pass, ask the user if questions arise.
 
 - [x] 22. Create user documentation
-  - Create .docs directory structure
+  - Create documentation directory structure
   - Write setup.md with installation instructions
   - Document environment variable configuration
   - Write usage.md with monitor management instructions
@@ -265,7 +265,7 @@
   - _Requirements: Development support_
 
 - [x] 24. Configure queue worker for production
-  - Document queue worker setup in .docs/deployment.md
+  - Document queue worker setup in documentation/deployment.md
   - Document Supervisor configuration for queue worker
   - Document Laravel scheduler cron configuration
   - Add queue monitoring recommendations

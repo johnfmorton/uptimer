@@ -604,7 +604,7 @@ ddev composer dev
 
 ## Production Considerations
 
-For production deployment, see `.docs/deployment.md` for detailed instructions on:
+For production deployment, see `documentation/deployment.md` for detailed instructions on:
 
 1. **Using Supervisor** to keep queue worker running
 2. **Configuring queue driver** (Redis recommended for production)
@@ -619,6 +619,6 @@ For production deployment, see `.docs/deployment.md` for detailed instructions o
 - [Laravel Queue Documentation](https://laravel.com/docs/queues)
 - [Laravel Task Scheduling Documentation](https://laravel.com/docs/scheduling)
 - [DDEV Documentation](https://ddev.readthedocs.io/)
-- Project Setup Guide: `.docs/setup.md`
-- Deployment Guide: `.docs/deployment.md`
-- Usage Guide: `.docs/usage.md`
+- Project Setup Guide: `documentation/setup.md`
+- Deployment Guide: `documentation/deployment.md`
+- Usage Guide: `documentation/usage.md`

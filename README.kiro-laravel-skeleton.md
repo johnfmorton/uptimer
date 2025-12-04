@@ -64,18 +64,18 @@ make dev      # Launch your development environment
 
 ## Documentation
 
-Comprehensive documentation is available in the `.docs` directory:
+Comprehensive documentation is available in the `documentation` directory:
 
-- **[Documentation Index](.docs/README.md)** - Overview and quick links
-- **[Setup Guide](.docs/setup.md)** - Installation and configuration
-- **[Usage Guide](.docs/usage.md)** - How to use the uptime monitoring features
-- **[Environment Variables](.docs/environment-variables.md)** - Complete reference for all configuration options
+- **[Documentation Index](documentation/README.md)** - Overview and quick links
+- **[Setup Guide](documentation/setup.md)** - Installation and configuration
+- **[Usage Guide](documentation/usage.md)** - How to use the uptime monitoring features
+- **[Environment Variables](documentation/environment-variables.md)** - Complete reference for all configuration options
 
 ### Quick Links
 
-- **New to the project?** Start with the [Setup Guide](.docs/setup.md)
-- **Ready to monitor sites?** See the [Usage Guide](.docs/usage.md)
-- **Need to configure something?** Check [Environment Variables](.docs/environment-variables.md)
+- **New to the project?** Start with the [Setup Guide](documentation/setup.md)
+- **Ready to monitor sites?** See the [Usage Guide](documentation/usage.md)
+- **Need to configure something?** Check [Environment Variables](documentation/environment-variables.md)
 
 ## Contribution and License
 

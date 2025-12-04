@@ -1,5 +1,9 @@
 # Uptimer
 
+<p align="center">
+  <img src="public/uptimer-logo.svg" alt="Uptimer Logo" width="200">
+</p>
+
 A Laravel-based uptime monitoring application that helps you track website availability and receive instant notifications when your sites go down or recover.
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
@@ -16,6 +20,9 @@ A Laravel-based uptime monitoring application that helps you track website avail
 - ⚡ **Background Processing** - Asynchronous checks using Laravel queues for optimal performance
 - 🔐 **Controlled Registration** - Secure access with optional public registration control
 - 🎨 **Modern UI** - Clean, responsive interface built with Tailwind CSS and Alpine.js
+
+[![Screenshot of Uptimer](screenshot.jpg)
+
 
 ## Quick Start
 
@@ -61,12 +68,12 @@ A Laravel-based uptime monitoring application that helps you track website avail
 
 ## Documentation
 
-Comprehensive documentation is available in the `.docs` directory:
+Comprehensive documentation is available in the `documentation` directory:
 
-- **[Setup Guide](.docs/setup.md)** - Complete installation and configuration instructions
-- **[Usage Guide](.docs/usage.md)** - How to monitor sites and configure notifications
-- **[Deployment Guide](.docs/deployment.md)** - Production deployment instructions
-- **[Environment Variables](.docs/environment-variables.md)** - Configuration reference
+- **[Setup Guide](documentation/setup.md)** - Complete installation and configuration instructions
+- **[Usage Guide](documentation/usage.md)** - How to monitor sites and configure notifications
+- **[Deployment Guide](documentation/deployment.md)** - Production deployment instructions
+- **[Environment Variables](documentation/environment-variables.md)** - Configuration reference
 
 ## How It Works
 
@@ -140,7 +147,7 @@ PUSHOVER_USER_KEY=your-user-key
 PUSHOVER_API_TOKEN=your-api-token
 ```
 
-See [Environment Variables](.docs/environment-variables.md) for complete reference.
+See [Environment Variables](documentation/environment-variables.md) for complete reference.
 
 ### Check History Retention
 
@@ -203,9 +210,9 @@ This project is open-sourced software licensed under the [MIT license](LICENSE).
 
 ## Support
 
-- **Documentation**: Start with the [Setup Guide](.docs/setup.md)
+- **Documentation**: Start with the [Setup Guide](documentation/setup.md)
 - **Issues**: Check application logs with `ddev artisan pail`
-- **Troubleshooting**: See [Setup Guide - Troubleshooting](.docs/setup.md#troubleshooting)
+- **Troubleshooting**: See [Setup Guide - Troubleshooting](documentation/setup.md#troubleshooting)
 
 ## Built With Kiro
 
@@ -213,4 +220,4 @@ This application was built using [Kiro](https://kiro.dev/), an AI-powered IDE th
 
 ---
 
-**Ready to monitor your sites?** Start with the [Setup Guide](.docs/setup.md) to get up and running in minutes.
+**Ready to monitor your sites?** Start with the [Setup Guide](documentation/setup.md) to get up and running in minutes.

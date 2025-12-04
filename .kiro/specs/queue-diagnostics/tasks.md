@@ -253,7 +253,7 @@
   - **Validates: Requirements 1.4**
 
 - [x] 14. Enhance queue testing documentation
-  - Update `.docs/queue-testing.md`
+  - Update `documentation/queue-testing.md`
   - Add section on using "Test Queue" button
   - Add section on using "Check Now" button
   - Add section on interpreting queue diagnostics
@@ -262,7 +262,7 @@
   - _Requirements: 7.1, 7.2, 7.3_
 
 - [x] 15. Enhance deployment documentation
-  - Update `.docs/deployment.md`
+  - Update `documentation/deployment.md`
   - Add production queue worker setup instructions (supervisor/systemd)
   - Add production scheduler setup instructions (cron)
   - Add monitoring queue health in production
@@ -271,7 +271,7 @@
   - _Requirements: 7.5_
 
 - [x] 16. Enhance setup documentation
-  - Update `.docs/setup.md`
+  - Update `documentation/setup.md`
   - Add queue worker to setup checklist
   - Add scheduler to setup checklist
   - Add verification steps for queue functionality

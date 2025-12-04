@@ -811,7 +811,7 @@ All commands in documentation must use `ddev` prefix:
 
 ### User Documentation
 
-**Location**: `.docs/queue-testing.md` (existing file to be enhanced)
+**Location**: `documentation/queue-testing.md` (existing file to be enhanced)
 
 **Content**:
 - How to start queue worker in development
@@ -823,7 +823,7 @@ All commands in documentation must use `ddev` prefix:
 
 ### Developer Documentation
 
-**Location**: `.docs/deployment.md` (existing file to be enhanced)
+**Location**: `documentation/deployment.md` (existing file to be enhanced)
 
 **Content**:
 - Production queue worker setup (supervisor/systemd)
@@ -834,7 +834,7 @@ All commands in documentation must use `ddev` prefix:
 
 ### Setup Documentation
 
-**Location**: `.docs/setup.md` (existing file to be enhanced)
+**Location**: `documentation/setup.md` (existing file to be enhanced)
 
 **Content**:
 - Add queue worker to setup checklist

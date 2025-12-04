@@ -176,4 +176,4 @@ This document specifies the requirements for a Laravel-based uptime monitoring a
 2. WHEN a user reads the setup documentation THEN the system SHALL document all required environment variables and configuration options
 3. WHEN a user reads the usage documentation THEN the system SHALL explain how to add, edit, and delete monitors
 4. WHEN a user reads the usage documentation THEN the system SHALL explain how to configure email and Pushover notifications
-5. WHEN documentation is provided THEN the system SHALL store it in Markdown files within a `.docs` directory
+5. WHEN documentation is provided THEN the system SHALL store it in Markdown files within a `documentation` directory
