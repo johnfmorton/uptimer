@@ -215,26 +215,14 @@
                                     @foreach($checks as $check)
                                         <tr class="{{ $check->wasFailed() ? 'bg-red-50' : '' }}">
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                {{ $check->checked_at->format('Y-m-d H:i:s') }}
-                                                <span class="text-gray-500 text-xs block">
-                                                    @php
-                                                        $diff_in_minutes = $check->checked_at->diffInMinutes(now());
-                                                        if ($diff_in_minutes < 1) {
-                                                            echo 'Just now';
-                                                        } elseif ($diff_in_minutes < 60) {
-                                                            echo $check->checked_at->diffForHumans();
-                                                        } elseif ($diff_in_minutes < 1440) {
-                                                            $hours = floor($diff_in_minutes / 60);
-                                                            $mins = $diff_in_minutes % 60;
-                                                            echo $hours . ' ' . Str::plural('hour', $hours);
-                                                            if ($mins > 0) {
-                                                                echo ', ' . $mins . ' ' . Str::plural('minute', $mins);
-                                                            }
-                                                            echo ' ago';
-                                                        } else {
-                                                            echo $check->checked_at->diffForHumans();
-                                                        }
-                                                    @endphp
+                                                <div class="font-medium">
+                                                    {{ $check->checked_at->format('M j, Y') }}
+                                                </div>
+                                                <div class="text-gray-600">
+                                                    {{ $check->checked_at->format('g:i A') }}
+                                                </div>
+                                                <span class="text-gray-500 text-xs block mt-1">
+                                                    {{ $check->checked_at->diffForHumans() }}
                                                 </span>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
