@@ -36,8 +36,8 @@ class Monitor extends Model
     protected function casts(): array
     {
         return [
-            'last_checked_at' => 'datetime',
-            'last_status_change_at' => 'datetime',
+            'last_checked_at' => 'immutable_datetime',
+            'last_status_change_at' => 'immutable_datetime',
             'check_interval_minutes' => 'integer',
         ];
     }

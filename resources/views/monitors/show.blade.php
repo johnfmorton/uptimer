@@ -216,10 +216,10 @@
                                         <tr class="{{ $check->wasFailed() ? 'bg-red-50' : '' }}">
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                 <div class="font-medium">
-                                                    {{ $check->checked_at->format('M j, Y') }}
+                                                    {{ $check->checked_at->timezone(config('app.display_timezone'))->format('M j, Y') }}
                                                 </div>
                                                 <div class="text-gray-600">
-                                                    {{ $check->checked_at->format('g:i A') }}
+                                                    {{ $check->checked_at->timezone(config('app.display_timezone'))->format('g:i A T') }}
                                                 </div>
                                                 <span class="text-gray-500 text-xs block mt-1">
                                                     {{ $check->checked_at->diffForHumans() }}

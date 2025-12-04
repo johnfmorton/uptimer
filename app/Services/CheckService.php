@@ -35,7 +35,7 @@ class CheckService
      */
     public function performCheck(Monitor $monitor): Check
     {
-        $checked_at = Carbon::now();
+        $checked_at = Carbon::now(config('app.timezone'));
         $old_status = $monitor->status;
         
         try {
@@ -148,7 +148,7 @@ class CheckService
      */
     public function calculateUptime(Monitor $monitor, int $hours): ?float
     {
-        $since = Carbon::now()->subHours($hours);
+        $since = Carbon::now(config('app.timezone'))->subHours($hours);
         
         $checks = $monitor->checks()
             ->where('checked_at', '>=', $since)

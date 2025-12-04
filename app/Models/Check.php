@@ -42,8 +42,8 @@ class Check extends Model
     protected function casts(): array
     {
         return [
-            'checked_at' => 'datetime',
-            'created_at' => 'datetime',
+            'checked_at' => 'immutable_datetime',
+            'created_at' => 'immutable_datetime',
             'response_time_ms' => 'integer',
             'status_code' => 'integer',
         ];
