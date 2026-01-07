@@ -75,6 +75,31 @@ Comprehensive documentation is available in the `documentation` directory:
 - **[Deployment Guide](documentation/deployment.md)** - Production deployment instructions
 - **[Environment Variables](documentation/environment-variables.md)** - Configuration reference
 
+## Environment Configuration
+
+After installation, configure your application by editing the `.env` file:
+
+```bash
+cp .env.example .env  # If starting fresh
+```
+
+### ⚠️ Important: Refreshing Configuration in Production
+
+When you modify the `.env` file on a production server, you must refresh the configuration cache:
+
+```bash
+php artisan env:refresh
+```
+
+Or manually clear caches:
+
+```bash
+php artisan optimize:clear
+php artisan config:cache  # Re-cache for performance
+```
+
+This ensures your environment changes are properly loaded by Laravel.
+
 ## How It Works
 
 1. **Add Monitors** - Configure URLs you want to monitor with custom check intervals
