@@ -14,7 +14,8 @@
         <div style="background-color: #dbeafe; border: 1px solid #93c5fd; border-radius: 4px; padding: 15px; margin: 15px 0;">
             <div style="font-weight: 600; color: #1e40af; font-size: 16px; margin-bottom: 8px;">This is a test message</div>
             <div style="color: #1e3a8a; font-size: 14px; line-height: 1.5;">
-                This email confirms that your email notification settings are configured correctly. 
+                This email confirms that your email notification settings are configured correctly for 
+                <strong>{{ config('app.name', 'Laravel App') }}</strong> ({{ config('app.url', 'localhost') }}). 
                 You should receive actual monitor alerts at this email address when your monitors detect issues.
             </div>
         </div>
@@ -37,7 +38,7 @@
     </div>
     
     <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center; color: #6b7280; font-size: 14px;">
-        <p style="margin: 0;">This is a test notification from your uptime monitoring system.</p>
+        <p style="margin: 0;">This is a test notification from {{ config('app.name', 'Laravel App') }} ({{ config('app.url', 'localhost') }}).</p>
     </div>
 </body>
 </html>

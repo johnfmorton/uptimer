@@ -78,31 +78,35 @@ class NotificationService
         }
         
         // Send Pushover notification if enabled
-        if ($notification_settings->pushover_enabled && 
-            $notification_settings->pushover_user_key && 
-            $notification_settings->pushover_api_token) {
+        if ($notification_settings->isPushoverEffectivelyEnabled()) {
             try {
                 $priority = $new_status === 'down' ? 2 : 0;
+                
+                $user_key = $notification_settings->getEffectivePushoverUserKey();
+                $api_token = $notification_settings->getEffectivePushoverApiToken();
+                $credential_sources = $notification_settings->getPushoverCredentialSources();
                 
                 Log::channel('notifications')->info('Sending Pushover notification for status change', [
                     'monitor_id' => $monitor->id,
                     'status' => $new_status,
                     'priority' => $priority,
-                    'user_key' => substr($notification_settings->pushover_user_key, 0, 8) . '...' . substr($notification_settings->pushover_user_key, -4),
+                    'credential_sources' => $credential_sources,
+                    'user_key' => substr($user_key, 0, 8) . '...' . substr($user_key, -4),
                 ]);
                 
                 $this->sendPushoverNotification(
                     $monitor, 
                     $new_status, 
                     $priority,
-                    $notification_settings->pushover_user_key,
-                    $notification_settings->pushover_api_token
+                    $user_key,
+                    $api_token
                 );
                 
             } catch (\Exception $e) {
                 Log::channel('notifications')->error('Failed to send Pushover notification for status change', [
                     'monitor_id' => $monitor->id,
                     'status' => $new_status,
+                    'credential_sources' => $notification_settings->getPushoverCredentialSources(),
                     'error' => $e->getMessage(),
                     'error_class' => get_class($e),
                 ]);
@@ -111,8 +115,8 @@ class NotificationService
             Log::channel('notifications')->info('Pushover notification skipped', [
                 'monitor_id' => $monitor->id,
                 'pushover_enabled' => $notification_settings->pushover_enabled,
-                'pushover_user_key_configured' => !empty($notification_settings->pushover_user_key),
-                'pushover_api_token_configured' => !empty($notification_settings->pushover_api_token),
+                'credential_sources' => $notification_settings->getPushoverCredentialSources(),
+                'effectively_enabled' => $notification_settings->isPushoverEffectivelyEnabled(),
             ]);
         }
     }
@@ -337,7 +341,8 @@ class NotificationService
             throw new \RuntimeException('Email address not configured');
         }
         
-        $subject = 'Test Notification - Email Configuration';
+        $app_name = config('app.name', 'Laravel App');
+        $subject = "Test Notification - {$app_name}";
         
         $data = [
             'user' => $user,
@@ -411,19 +416,25 @@ class NotificationService
     {
         $notification_settings = $user->notificationSettings;
         
-        if (! $notification_settings || 
-            ! $notification_settings->pushover_user_key || 
-            ! $notification_settings->pushover_api_token) {
-            throw new \RuntimeException('Pushover credentials not configured');
+        if (! $notification_settings || ! $notification_settings->isPushoverEffectivelyEnabled()) {
+            $credential_sources = $notification_settings?->getPushoverCredentialSources() ?? ['user_key_source' => 'none', 'api_token_source' => 'none', 'both_from_env' => false];
+            throw new \RuntimeException("Pushover credentials not configured (sources: " . json_encode($credential_sources) . ")");
         }
         
-        $message = 'This is a test notification to verify your Pushover configuration is working correctly.';
-        $title = 'Test Notification';
+        $user_key = $notification_settings->getEffectivePushoverUserKey();
+        $api_token = $notification_settings->getEffectivePushoverApiToken();
+        $credential_sources = $notification_settings->getPushoverCredentialSources();
+        
+        $app_name = config('app.name', 'Laravel App');
+        $app_url = config('app.url', 'localhost');
+        
+        $message = "This is a test notification from {$app_name} ({$app_url}) to verify your Pushover configuration is working correctly.";
+        $title = "Test Notification - {$app_name}";
         $priority = 0; // Normal priority
         
         $payload = [
-            'token' => $notification_settings->pushover_api_token,
-            'user' => $notification_settings->pushover_user_key,
+            'token' => $api_token,
+            'user' => $user_key,
             'message' => $message,
             'title' => $title,
             'priority' => $priority,
@@ -432,8 +443,9 @@ class NotificationService
         // Log test Pushover attempt with configuration details
         Log::channel('notifications')->info('Attempting to send test Pushover notification', [
             'user_id' => $user->id,
-            'user_key' => substr($notification_settings->pushover_user_key, 0, 8) . '...' . substr($notification_settings->pushover_user_key, -4),
-            'api_token' => substr($notification_settings->pushover_api_token, 0, 8) . '...' . substr($notification_settings->pushover_api_token, -4),
+            'credential_sources' => $credential_sources,
+            'user_key' => substr($user_key, 0, 8) . '...' . substr($user_key, -4),
+            'api_token' => substr($api_token, 0, 8) . '...' . substr($api_token, -4),
             'message' => $message,
             'title' => $title,
             'priority' => $priority,
@@ -457,12 +469,13 @@ class NotificationService
                 
                 Log::channel('notifications')->error('Test Pushover notification failed', [
                     'user_id' => $user->id,
+                    'credential_sources' => $credential_sources,
                     'status_code' => $response->status(),
                     'response_body' => $response->body(),
                     'response_headers' => $response->headers(),
                     'payload_sent' => array_merge($payload, [
-                        'token' => substr($notification_settings->pushover_api_token, 0, 8) . '...' . substr($notification_settings->pushover_api_token, -4),
-                        'user' => substr($notification_settings->pushover_user_key, 0, 8) . '...' . substr($notification_settings->pushover_user_key, -4),
+                        'token' => substr($api_token, 0, 8) . '...' . substr($api_token, -4),
+                        'user' => substr($user_key, 0, 8) . '...' . substr($user_key, -4),
                     ]),
                     'troubleshooting_hints' => [
                         'Verify Pushover API token is valid and active',
@@ -487,10 +500,11 @@ class NotificationService
         } catch (\Exception $e) {
             Log::channel('notifications')->error('Test Pushover notification exception occurred', [
                 'user_id' => $user->id,
+                'credential_sources' => $credential_sources,
                 'error' => $e->getMessage(),
                 'error_class' => get_class($e),
-                'user_key' => substr($notification_settings->pushover_user_key, 0, 8) . '...' . substr($notification_settings->pushover_user_key, -4),
-                'api_token' => substr($notification_settings->pushover_api_token, 0, 8) . '...' . substr($notification_settings->pushover_api_token, -4),
+                'user_key' => substr($user_key, 0, 8) . '...' . substr($user_key, -4),
+                'api_token' => substr($api_token, 0, 8) . '...' . substr($api_token, -4),
                 'troubleshooting_hints' => [
                     'Check internet connectivity from production server',
                     'Verify DNS resolution for api.pushover.net',

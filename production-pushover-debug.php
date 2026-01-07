@@ -3,6 +3,7 @@
 /**
  * Production Pushover Debugging Script
  * 
+ * Works with the database-based Pushover configuration system.
  * Upload this file to your production server and run it to debug Pushover issues.
  * Usage: php production-pushover-debug.php
  */
@@ -24,8 +25,9 @@ echo "1. ENVIRONMENT CONFIGURATION:\n";
 echo "   APP_ENV: " . env('APP_ENV', 'not set') . "\n";
 echo "   APP_DEBUG: " . (env('APP_DEBUG') ? 'true' : 'false') . "\n";
 echo "   LOG_LEVEL: " . env('LOG_LEVEL', 'not set') . "\n";
-echo "   PUSHOVER_USER_KEY: " . (env('PUSHOVER_USER_KEY') ? 'SET (' . strlen(env('PUSHOVER_USER_KEY')) . ' chars)' : 'NOT SET') . "\n";
-echo "   PUSHOVER_API_TOKEN: " . (env('PUSHOVER_API_TOKEN') ? 'SET (' . strlen(env('PUSHOVER_API_TOKEN')) . ' chars)' : 'NOT SET') . "\n\n";
+echo "   PUSHOVER_USER_KEY (env): " . (env('PUSHOVER_USER_KEY') ? 'SET (' . strlen(env('PUSHOVER_USER_KEY')) . ' chars)' : 'NOT SET') . "\n";
+echo "   PUSHOVER_API_TOKEN (env): " . (env('PUSHOVER_API_TOKEN') ? 'SET (' . strlen(env('PUSHOVER_API_TOKEN')) . ' chars)' : 'NOT SET') . "\n";
+echo "   NOTE: This app uses DATABASE-STORED credentials, not environment variables\n\n";
 
 // 2. Database Check
 echo "2. DATABASE & USER CHECK:\n";
@@ -40,10 +42,25 @@ try {
     echo "   Users with Pushover enabled: $pushoverEnabledCount\n";
     
     if ($pushoverEnabledCount > 0) {
-        $firstPushoverUser = \App\Models\NotificationSettings::where('pushover_enabled', true)->first();
-        echo "   First Pushover user ID: {$firstPushoverUser->user_id}\n";
-        echo "   Has user key: " . (!empty($firstPushoverUser->pushover_user_key) ? 'YES' : 'NO') . "\n";
-        echo "   Has API token: " . (!empty($firstPushoverUser->pushover_api_token) ? 'YES' : 'NO') . "\n";
+        $pushoverUsers = \App\Models\NotificationSettings::where('pushover_enabled', true)
+            ->whereNotNull('pushover_user_key')
+            ->whereNotNull('pushover_api_token')
+            ->get();
+            
+        echo "   Users with complete Pushover config: " . $pushoverUsers->count() . "\n";
+        
+        foreach ($pushoverUsers as $index => $settings) {
+            echo "   User #{$settings->user_id}:\n";
+            echo "     - User key length: " . strlen($settings->pushover_user_key) . " chars\n";
+            echo "     - API token length: " . strlen($settings->pushover_api_token) . " chars\n";
+            echo "     - User key preview: " . substr($settings->pushover_user_key, 0, 8) . "...\n";
+            echo "     - API token preview: " . substr($settings->pushover_api_token, 0, 8) . "...\n";
+            
+            if ($index >= 2) { // Limit to first 3 users for brevity
+                echo "   ... and " . ($pushoverUsers->count() - 3) . " more users\n";
+                break;
+            }
+        }
     }
 } catch (Exception $e) {
     echo "   ❌ Database error: " . $e->getMessage() . "\n";
@@ -101,17 +118,28 @@ if ($curl_result !== false && $http_code === 200) {
 }
 echo "\n";
 
-// 4. Laravel HTTP Client Test
-echo "4. LARAVEL HTTP CLIENT TEST:\n";
-if (env('PUSHOVER_USER_KEY') && env('PUSHOVER_API_TOKEN')) {
-    try {
-        echo "   Sending test notification via Laravel HTTP client...\n";
+// 4. Test with actual database credentials
+echo "4. TESTING WITH DATABASE-STORED CREDENTIALS:\n";
+try {
+    $testUser = \App\Models\User::whereHas('notificationSettings', function($query) {
+        $query->where('pushover_enabled', true)
+              ->whereNotNull('pushover_user_key')
+              ->whereNotNull('pushover_api_token');
+    })->first();
+    
+    if ($testUser && $testUser->notificationSettings) {
+        $settings = $testUser->notificationSettings;
         
+        echo "   Testing with User #{$testUser->id} credentials:\n";
+        echo "   User key: " . substr($settings->pushover_user_key, 0, 8) . "..." . substr($settings->pushover_user_key, -4) . "\n";
+        echo "   API token: " . substr($settings->pushover_api_token, 0, 8) . "..." . substr($settings->pushover_api_token, -4) . "\n";
+        
+        // Test with Laravel HTTP client using actual credentials
         $response = \Illuminate\Support\Facades\Http::timeout(30)
             ->asForm()
             ->post('https://api.pushover.net/1/messages.json', [
-                'token' => env('PUSHOVER_API_TOKEN'),
-                'user' => env('PUSHOVER_USER_KEY'),
+                'token' => $settings->pushover_api_token,
+                'user' => $settings->pushover_user_key,
                 'message' => 'Production debug test from ' . gethostname() . ' at ' . date('Y-m-d H:i:s'),
                 'title' => 'Production Debug Test',
                 'priority' => 0,
@@ -122,17 +150,38 @@ if (env('PUSHOVER_USER_KEY') && env('PUSHOVER_API_TOKEN')) {
         echo "   Success: " . ($response->successful() ? 'YES' : 'NO') . "\n";
         
         if ($response->successful()) {
-            echo "   ✅ Laravel HTTP client test PASSED\n";
+            echo "   ✅ Database credentials test PASSED\n";
         } else {
-            echo "   ❌ Laravel HTTP client test FAILED\n";
+            echo "   ❌ Database credentials test FAILED\n";
+            
+            // Parse response for specific error details
+            $responseData = json_decode($response->body(), true);
+            if (isset($responseData['errors'])) {
+                echo "   Specific errors:\n";
+                foreach ($responseData['errors'] as $error) {
+                    echo "     - $error\n";
+                }
+            }
         }
         
-    } catch (Exception $e) {
-        echo "   ❌ Exception: " . $e->getMessage() . "\n";
-        echo "   Exception Class: " . get_class($e) . "\n";
+    } else {
+        echo "   No users found with complete Pushover configuration\n";
+        
+        // Show what we do have
+        $allSettings = \App\Models\NotificationSettings::where('pushover_enabled', true)->get();
+        if ($allSettings->count() > 0) {
+            echo "   Found {$allSettings->count()} users with Pushover enabled but incomplete config:\n";
+            foreach ($allSettings as $settings) {
+                echo "     User #{$settings->user_id}: ";
+                echo "user_key=" . (!empty($settings->pushover_user_key) ? 'SET' : 'MISSING') . ", ";
+                echo "api_token=" . (!empty($settings->pushover_api_token) ? 'SET' : 'MISSING') . "\n";
+            }
+        }
     }
-} else {
-    echo "   Skipping - Pushover credentials not configured in environment\n";
+    
+} catch (Exception $e) {
+    echo "   ❌ Exception: " . $e->getMessage() . "\n";
+    echo "   Exception Class: " . get_class($e) . "\n";
 }
 echo "\n";
 
@@ -154,28 +203,7 @@ try {
         echo "   ✅ Laravel NotificationService test PASSED\n";
         
     } else {
-        echo "   No users found with Pushover properly configured\n";
-        
-        // Try to create a test configuration
-        $firstUser = \App\Models\User::first();
-        if ($firstUser && env('PUSHOVER_USER_KEY') && env('PUSHOVER_API_TOKEN')) {
-            echo "   Creating test notification settings for user {$firstUser->id}...\n";
-            
-            $settings = \App\Models\NotificationSettings::updateOrCreate(
-                ['user_id' => $firstUser->id],
-                [
-                    'pushover_enabled' => true,
-                    'pushover_user_key' => env('PUSHOVER_USER_KEY'),
-                    'pushover_api_token' => env('PUSHOVER_API_TOKEN'),
-                ]
-            );
-            
-            echo "   Testing with created settings...\n";
-            $notificationService = app(\App\Services\NotificationService::class);
-            $notificationService->sendTestPushover($firstUser);
-            
-            echo "   ✅ Laravel NotificationService test PASSED (with created settings)\n";
-        }
+        echo "   No users found with complete Pushover configuration\n";
     }
     
 } catch (Exception $e) {
@@ -185,8 +213,42 @@ try {
 }
 echo "\n";
 
-// 6. Log File Check
-echo "6. LOG FILE STATUS:\n";
+// 6. Credential Validation
+echo "6. CREDENTIAL VALIDATION:\n";
+try {
+    $pushoverUsers = \App\Models\NotificationSettings::where('pushover_enabled', true)
+        ->whereNotNull('pushover_user_key')
+        ->whereNotNull('pushover_api_token')
+        ->get();
+        
+    foreach ($pushoverUsers as $settings) {
+        echo "   User #{$settings->user_id}:\n";
+        
+        // Validate user key format (should be 30 characters)
+        $userKeyLength = strlen($settings->pushover_user_key);
+        echo "     User key length: $userKeyLength " . ($userKeyLength === 30 ? '✅' : '❌ (should be 30)') . "\n";
+        
+        // Validate API token format (should be 30 characters)
+        $tokenLength = strlen($settings->pushover_api_token);
+        echo "     API token length: $tokenLength " . ($tokenLength === 30 ? '✅' : '❌ (should be 30)') . "\n";
+        
+        // Check for common issues
+        if (strpos($settings->pushover_user_key, ' ') !== false) {
+            echo "     ❌ User key contains spaces\n";
+        }
+        if (strpos($settings->pushover_api_token, ' ') !== false) {
+            echo "     ❌ API token contains spaces\n";
+        }
+        
+        echo "\n";
+    }
+    
+} catch (Exception $e) {
+    echo "   ❌ Validation error: " . $e->getMessage() . "\n";
+}
+
+// 7. Log File Check
+echo "7. LOG FILE STATUS:\n";
 $logPath = storage_path('logs/notifications.log');
 echo "   Notifications log path: $logPath\n";
 echo "   Log file exists: " . (file_exists($logPath) ? 'YES' : 'NO') . "\n";
@@ -207,9 +269,9 @@ if (file_exists($logPath)) {
 }
 echo "\n";
 
-// 7. System Information
-echo "7. SYSTEM INFORMATION:\n";
-echo "   Operating System: " . php_uname('s r') . "\n";
+// 8. System Information
+echo "8. SYSTEM INFORMATION:\n";
+echo "   Operating System: " . php_uname('s') . " " . php_uname('r') . "\n";
 echo "   Server Software: " . ($_SERVER['SERVER_SOFTWARE'] ?? 'Unknown') . "\n";
 echo "   PHP Extensions:\n";
 echo "     - cURL: " . (extension_loaded('curl') ? 'YES' : 'NO') . "\n";
@@ -225,16 +287,22 @@ echo "\n";
 
 echo "=== DEBUGGING COMPLETE ===\n\n";
 
-echo "NEXT STEPS:\n";
-echo "1. If network tests fail, check firewall rules for outbound HTTPS (port 443)\n";
-echo "2. If credentials are missing, add PUSHOVER_USER_KEY and PUSHOVER_API_TOKEN to .env\n";
-echo "3. If Laravel tests fail but direct tests pass, check notification settings in database\n";
-echo "4. Check notification logs: php artisan notifications:logs\n";
-echo "5. Test via web interface if available\n\n";
+echo "DIAGNOSIS:\n";
+echo "This application stores Pushover credentials in the database per user,\n";
+echo "not in environment variables. The original debug script was checking\n";
+echo "for PUSHOVER_USER_KEY and PUSHOVER_API_TOKEN in .env, but your app\n";
+echo "uses individual credentials stored in the notification_settings table.\n\n";
 
-echo "COMMON PRODUCTION ISSUES:\n";
-echo "- Missing environment variables in production .env file\n";
-echo "- Firewall blocking outbound HTTPS connections\n";
-echo "- Different user/database in production vs local\n";
-echo "- SSL certificate validation issues\n";
-echo "- Proxy server blocking requests\n";
+echo "NEXT STEPS:\n";
+echo "1. Check if users have valid Pushover credentials in the database\n";
+echo "2. Verify API tokens are 30 characters and valid\n";
+echo "3. Ensure user keys are 30 characters and valid\n";
+echo "4. Test credentials manually at https://pushover.net/\n";
+echo "5. Check notification logs for detailed error information\n\n";
+
+echo "COMMON ISSUES:\n";
+echo "- Invalid or expired Pushover API tokens\n";
+echo "- Incorrect user keys (not matching Pushover account)\n";
+echo "- API tokens from wrong Pushover application\n";
+echo "- Credentials with extra spaces or characters\n";
+echo "- Pushover account limits exceeded\n";
