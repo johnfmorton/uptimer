@@ -27,22 +27,54 @@ class NotificationService
         // Load user's notification settings
         $notification_settings = $monitor->user->notificationSettings ?? null;
         
+        // Log notification attempt with context
+        Log::channel('notifications')->info('Processing status change notification', [
+            'monitor_id' => $monitor->id,
+            'monitor_name' => $monitor->name,
+            'monitor_url' => $monitor->url,
+            'user_id' => $monitor->user->id,
+            'old_status' => $old_status,
+            'new_status' => $new_status,
+            'has_notification_settings' => $notification_settings !== null,
+            'email_enabled' => $notification_settings?->email_enabled ?? false,
+            'pushover_enabled' => $notification_settings?->pushover_enabled ?? false,
+        ]);
+        
         // If no notification settings exist, skip notifications
         if (! $notification_settings) {
+            Log::channel('notifications')->warning('No notification settings found for user, skipping notifications', [
+                'monitor_id' => $monitor->id,
+                'user_id' => $monitor->user->id,
+            ]);
             return;
         }
         
         // Send email notification if enabled
         if ($notification_settings->email_enabled && $notification_settings->email_address) {
             try {
+                Log::channel('notifications')->info('Sending email notification for status change', [
+                    'monitor_id' => $monitor->id,
+                    'email_address' => $notification_settings->email_address,
+                    'status' => $new_status,
+                ]);
+                
                 $this->sendEmailNotification($monitor, $new_status, $notification_settings->email_address);
+                
             } catch (\Exception $e) {
-                Log::error('Failed to send email notification', [
+                Log::channel('notifications')->error('Failed to send email notification for status change', [
                     'monitor_id' => $monitor->id,
                     'email' => $notification_settings->email_address,
+                    'status' => $new_status,
                     'error' => $e->getMessage(),
+                    'error_class' => get_class($e),
                 ]);
             }
+        } else {
+            Log::channel('notifications')->info('Email notification skipped', [
+                'monitor_id' => $monitor->id,
+                'email_enabled' => $notification_settings->email_enabled,
+                'email_address_configured' => !empty($notification_settings->email_address),
+            ]);
         }
         
         // Send Pushover notification if enabled
@@ -51,6 +83,14 @@ class NotificationService
             $notification_settings->pushover_api_token) {
             try {
                 $priority = $new_status === 'down' ? 2 : 0;
+                
+                Log::channel('notifications')->info('Sending Pushover notification for status change', [
+                    'monitor_id' => $monitor->id,
+                    'status' => $new_status,
+                    'priority' => $priority,
+                    'user_key' => substr($notification_settings->pushover_user_key, 0, 8) . '...' . substr($notification_settings->pushover_user_key, -4),
+                ]);
+                
                 $this->sendPushoverNotification(
                     $monitor, 
                     $new_status, 
@@ -58,12 +98,22 @@ class NotificationService
                     $notification_settings->pushover_user_key,
                     $notification_settings->pushover_api_token
                 );
+                
             } catch (\Exception $e) {
-                Log::error('Failed to send Pushover notification', [
+                Log::channel('notifications')->error('Failed to send Pushover notification for status change', [
                     'monitor_id' => $monitor->id,
+                    'status' => $new_status,
                     'error' => $e->getMessage(),
+                    'error_class' => get_class($e),
                 ]);
             }
+        } else {
+            Log::channel('notifications')->info('Pushover notification skipped', [
+                'monitor_id' => $monitor->id,
+                'pushover_enabled' => $notification_settings->pushover_enabled,
+                'pushover_user_key_configured' => !empty($notification_settings->pushover_user_key),
+                'pushover_api_token_configured' => !empty($notification_settings->pushover_api_token),
+            ]);
         }
     }
 
@@ -80,6 +130,21 @@ class NotificationService
         $subject = $status === 'down' 
             ? "🔴 Monitor Down: {$monitor->name}"
             : "✅ Monitor Recovered: {$monitor->name}";
+        
+        // Log email notification attempt with configuration details
+        Log::channel('notifications')->info('Attempting to send email notification', [
+            'monitor_id' => $monitor->id,
+            'monitor_name' => $monitor->name,
+            'monitor_url' => $monitor->url,
+            'status' => $status,
+            'email_address' => $email_address,
+            'subject' => $subject,
+            'mail_driver' => config('mail.default'),
+            'mail_host' => config('mail.mailers.smtp.host'),
+            'mail_port' => config('mail.mailers.smtp.port'),
+            'mail_from_address' => config('mail.from.address'),
+            'mail_from_name' => config('mail.from.name'),
+        ]);
         
         $data = [
             'monitor' => $monitor,
@@ -103,10 +168,40 @@ class NotificationService
             }
         }
         
-        Mail::send($template, $data, function ($message) use ($email_address, $subject) {
-            $message->to($email_address)
-                    ->subject($subject);
-        });
+        try {
+            Mail::send($template, $data, function ($message) use ($email_address, $subject) {
+                $message->to($email_address)
+                        ->subject($subject);
+            });
+            
+            Log::channel('notifications')->info('Email notification sent successfully', [
+                'monitor_id' => $monitor->id,
+                'email_address' => $email_address,
+                'template' => $template,
+                'subject' => $subject,
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::channel('notifications')->error('Email notification failed to send', [
+                'monitor_id' => $monitor->id,
+                'email_address' => $email_address,
+                'template' => $template,
+                'subject' => $subject,
+                'error' => $e->getMessage(),
+                'error_class' => get_class($e),
+                'mail_driver' => config('mail.default'),
+                'mail_host' => config('mail.mailers.smtp.host'),
+                'mail_port' => config('mail.mailers.smtp.port'),
+                'troubleshooting_hints' => [
+                    'Check MAIL_* environment variables in .env',
+                    'Verify SMTP server is accessible from production server',
+                    'Check firewall rules for outbound SMTP connections',
+                    'Verify mail credentials and authentication',
+                    'Check mail server logs for rejected messages',
+                ],
+            ]);
+            throw $e;
+        }
     }
 
     /**
@@ -148,12 +243,79 @@ class NotificationService
             $payload['retry'] = 60;    // Retry every 60 seconds
         }
         
-        $response = Http::asForm()->post('https://api.pushover.net/1/messages.json', $payload);
+        // Log Pushover notification attempt with configuration details
+        Log::channel('notifications')->info('Attempting to send Pushover notification', [
+            'monitor_id' => $monitor->id,
+            'monitor_name' => $monitor->name,
+            'monitor_url' => $monitor->url,
+            'status' => $status,
+            'priority' => $priority,
+            'user_key' => substr($user_key, 0, 8) . '...' . substr($user_key, -4), // Partially masked for security
+            'api_token' => substr($api_token, 0, 8) . '...' . substr($api_token, -4), // Partially masked for security
+            'message' => $message,
+            'title' => $title,
+            'payload_keys' => array_keys($payload),
+        ]);
         
-        if (! $response->successful()) {
-            throw new \RuntimeException(
-                "Pushover API request failed: {$response->status()} - {$response->body()}"
-            );
+        try {
+            $response = Http::asForm()->post('https://api.pushover.net/1/messages.json', $payload);
+            
+            // Log detailed response information
+            Log::channel('notifications')->info('Pushover API response received', [
+                'monitor_id' => $monitor->id,
+                'status_code' => $response->status(),
+                'response_body' => $response->body(),
+                'response_headers' => $response->headers(),
+                'successful' => $response->successful(),
+            ]);
+            
+            if (! $response->successful()) {
+                $error_message = "Pushover API request failed: {$response->status()} - {$response->body()}";
+                
+                Log::channel('notifications')->error('Pushover notification failed', [
+                    'monitor_id' => $monitor->id,
+                    'status_code' => $response->status(),
+                    'response_body' => $response->body(),
+                    'response_headers' => $response->headers(),
+                    'payload_sent' => array_merge($payload, [
+                        'token' => substr($api_token, 0, 8) . '...' . substr($api_token, -4),
+                        'user' => substr($user_key, 0, 8) . '...' . substr($user_key, -4),
+                    ]),
+                    'troubleshooting_hints' => [
+                        'Verify Pushover API token is valid and active',
+                        'Check Pushover user key is correct',
+                        'Ensure production server can reach api.pushover.net (port 443)',
+                        'Check firewall rules for outbound HTTPS connections',
+                        'Verify Pushover account has not exceeded message limits',
+                        'Check Pushover API status at https://status.pushover.net/',
+                    ],
+                ]);
+                
+                throw new \RuntimeException($error_message);
+            }
+            
+            Log::channel('notifications')->info('Pushover notification sent successfully', [
+                'monitor_id' => $monitor->id,
+                'priority' => $priority,
+                'message_length' => strlen($message),
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::channel('notifications')->error('Pushover notification exception occurred', [
+                'monitor_id' => $monitor->id,
+                'error' => $e->getMessage(),
+                'error_class' => get_class($e),
+                'user_key' => substr($user_key, 0, 8) . '...' . substr($user_key, -4),
+                'api_token' => substr($api_token, 0, 8) . '...' . substr($api_token, -4),
+                'troubleshooting_hints' => [
+                    'Check internet connectivity from production server',
+                    'Verify DNS resolution for api.pushover.net',
+                    'Check SSL/TLS certificate validation',
+                    'Ensure cURL is properly configured on server',
+                    'Check for any proxy or firewall blocking HTTPS requests',
+                ],
+            ]);
+            throw $e;
         }
     }
 
@@ -182,10 +344,57 @@ class NotificationService
             'timestamp' => now()->timezone(config('app.display_timezone')),
         ];
         
-        Mail::send('emails.test-notification', $data, function ($message) use ($notification_settings, $subject) {
-            $message->to($notification_settings->email_address)
-                    ->subject($subject);
-        });
+        // Log test email attempt with detailed configuration
+        Log::channel('notifications')->info('Attempting to send test email notification', [
+            'user_id' => $user->id,
+            'email_address' => $notification_settings->email_address,
+            'subject' => $subject,
+            'mail_driver' => config('mail.default'),
+            'mail_host' => config('mail.mailers.smtp.host'),
+            'mail_port' => config('mail.mailers.smtp.port'),
+            'mail_username' => config('mail.mailers.smtp.username') ? 'configured' : 'not_configured',
+            'mail_password' => config('mail.mailers.smtp.password') ? 'configured' : 'not_configured',
+            'mail_encryption' => config('mail.mailers.smtp.encryption') ?? 'none',
+            'mail_from_address' => config('mail.from.address'),
+            'mail_from_name' => config('mail.from.name'),
+            'template' => 'emails.test-notification',
+        ]);
+        
+        try {
+            Mail::send('emails.test-notification', $data, function ($message) use ($notification_settings, $subject) {
+                $message->to($notification_settings->email_address)
+                        ->subject($subject);
+            });
+            
+            Log::channel('notifications')->info('Test email notification sent successfully', [
+                'user_id' => $user->id,
+                'email_address' => $notification_settings->email_address,
+                'subject' => $subject,
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::channel('notifications')->error('Test email notification failed to send', [
+                'user_id' => $user->id,
+                'email_address' => $notification_settings->email_address,
+                'subject' => $subject,
+                'error' => $e->getMessage(),
+                'error_class' => get_class($e),
+                'mail_driver' => config('mail.default'),
+                'mail_host' => config('mail.mailers.smtp.host'),
+                'mail_port' => config('mail.mailers.smtp.port'),
+                'troubleshooting_hints' => [
+                    'Check MAIL_* environment variables in .env file',
+                    'Verify SMTP server credentials are correct',
+                    'Test SMTP connection manually (telnet/openssl)',
+                    'Check if SMTP server requires authentication',
+                    'Verify email address format is valid',
+                    'Check spam/junk folders for delivered emails',
+                    'Ensure production server can reach SMTP server',
+                    'Check mail server logs for rejected messages',
+                ],
+            ]);
+            throw $e;
+        }
     }
 
     /**
@@ -212,18 +421,87 @@ class NotificationService
         $title = 'Test Notification';
         $priority = 0; // Normal priority
         
-        $response = Http::asForm()->post('https://api.pushover.net/1/messages.json', [
+        $payload = [
             'token' => $notification_settings->pushover_api_token,
             'user' => $notification_settings->pushover_user_key,
             'message' => $message,
             'title' => $title,
             'priority' => $priority,
+        ];
+        
+        // Log test Pushover attempt with configuration details
+        Log::channel('notifications')->info('Attempting to send test Pushover notification', [
+            'user_id' => $user->id,
+            'user_key' => substr($notification_settings->pushover_user_key, 0, 8) . '...' . substr($notification_settings->pushover_user_key, -4),
+            'api_token' => substr($notification_settings->pushover_api_token, 0, 8) . '...' . substr($notification_settings->pushover_api_token, -4),
+            'message' => $message,
+            'title' => $title,
+            'priority' => $priority,
+            'payload_keys' => array_keys($payload),
         ]);
         
-        if (! $response->successful()) {
-            throw new \RuntimeException(
-                "Pushover API request failed: {$response->status()} - {$response->body()}"
-            );
+        try {
+            $response = Http::asForm()->post('https://api.pushover.net/1/messages.json', $payload);
+            
+            // Log detailed response information
+            Log::channel('notifications')->info('Test Pushover API response received', [
+                'user_id' => $user->id,
+                'status_code' => $response->status(),
+                'response_body' => $response->body(),
+                'response_headers' => $response->headers(),
+                'successful' => $response->successful(),
+            ]);
+            
+            if (! $response->successful()) {
+                $error_message = "Pushover API request failed: {$response->status()} - {$response->body()}";
+                
+                Log::channel('notifications')->error('Test Pushover notification failed', [
+                    'user_id' => $user->id,
+                    'status_code' => $response->status(),
+                    'response_body' => $response->body(),
+                    'response_headers' => $response->headers(),
+                    'payload_sent' => array_merge($payload, [
+                        'token' => substr($notification_settings->pushover_api_token, 0, 8) . '...' . substr($notification_settings->pushover_api_token, -4),
+                        'user' => substr($notification_settings->pushover_user_key, 0, 8) . '...' . substr($notification_settings->pushover_user_key, -4),
+                    ]),
+                    'troubleshooting_hints' => [
+                        'Verify Pushover API token is valid and active',
+                        'Check Pushover user key is correct (30 characters)',
+                        'Ensure production server can reach api.pushover.net (port 443)',
+                        'Check firewall rules for outbound HTTPS connections',
+                        'Verify Pushover account has not exceeded message limits',
+                        'Test credentials manually with curl command',
+                        'Check Pushover API status at https://status.pushover.net/',
+                    ],
+                ]);
+                
+                throw new \RuntimeException($error_message);
+            }
+            
+            Log::channel('notifications')->info('Test Pushover notification sent successfully', [
+                'user_id' => $user->id,
+                'priority' => $priority,
+                'message_length' => strlen($message),
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::channel('notifications')->error('Test Pushover notification exception occurred', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+                'error_class' => get_class($e),
+                'user_key' => substr($notification_settings->pushover_user_key, 0, 8) . '...' . substr($notification_settings->pushover_user_key, -4),
+                'api_token' => substr($notification_settings->pushover_api_token, 0, 8) . '...' . substr($notification_settings->pushover_api_token, -4),
+                'troubleshooting_hints' => [
+                    'Check internet connectivity from production server',
+                    'Verify DNS resolution for api.pushover.net',
+                    'Test with: nslookup api.pushover.net',
+                    'Test with: curl -I https://api.pushover.net',
+                    'Check SSL/TLS certificate validation',
+                    'Ensure cURL is properly configured on server',
+                    'Check for any proxy or firewall blocking HTTPS requests',
+                ],
+            ]);
+            throw $e;
         }
     }
 
