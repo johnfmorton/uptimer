@@ -39,9 +39,10 @@ class CheckService
         $old_status = $monitor->status;
         
         try {
-            // Execute HTTP request with 30-second timeout
+            // Execute HTTP HEAD request with 30-second timeout, without following redirects
+            // HEAD requests are more efficient and often give more accurate status codes
             $start_time = microtime(true);
-            $response = Http::timeout(30)->get($monitor->url);
+            $response = Http::timeout(30)->withoutRedirecting()->head($monitor->url);
             $response_time_ms = (int) ((microtime(true) - $start_time) * 1000);
             
             $status_code = $response->status();
